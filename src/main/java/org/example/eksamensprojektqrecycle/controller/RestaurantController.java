@@ -12,7 +12,7 @@ import java.util.List;
     @CrossOrigin(origins = "*")
     public class RestaurantController {
 
-        @GetMapping("/getResturants")
+        @GetMapping("/getRestaurants")
         public List<String> getRestaurants() {
             return List.of("Restaurant 1", "Restaurant 2", "Restaurant 3");
         }
