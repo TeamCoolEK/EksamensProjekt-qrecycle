@@ -47,6 +47,7 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
+          #Fortæller docker at Dockerfilen skal hentes fra root mappen (vores repository)
           context: .
           push: true
           tags: |
@@ -69,6 +70,10 @@ jobs:
             set -e
 
             cd ~/qrecycle
+            
+            echo "SUPABASE_URL=${{ secrets.PROD_URL }}" > .env
+            echo "SUPABASE_DB_PASSWORD=${{ secrets.PROD_PASSWORD }}" >> .env
+            echo "SUPABASE_DB_USER=${{ secrets.PROD_USERNAME }}" >> .env
 
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d

@@ -1,0 +1,9 @@
+docker run --name my-pg-dev \
+  -e POSTGRES_USER=dev \
+  -e POSTGRES_PASSWORD=devpass \
+  -e POSTGRES_DB=mydb \
+  -p 5555:5432 \
+  -d postgres:16
+
+#til dev enviorment variables
+DEV_DATABASE_URL=jdbc:postgresql://localhost:5555/mydb;DEV_USERNAME=dev;DEV_PASSWORD=devpass
