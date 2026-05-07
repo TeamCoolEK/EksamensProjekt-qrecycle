@@ -147,7 +147,7 @@
                 <excludes>
                     <exclude>application-prod.properties</exclude>
                 </excludes>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
