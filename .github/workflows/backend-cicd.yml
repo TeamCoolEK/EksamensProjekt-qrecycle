@@ -71,9 +71,9 @@ jobs:
 
             cd ~/qrecycle
             
-            echo "SUPABASE_URL=${{ secrets.PROD_URL }}" > .env
-            echo "SUPABASE_DB_PASSWORD=${{ secrets.PROD_PASSWORD }}" >> .env
-            echo "SUPABASE_DB_USER=${{ secrets.PROD_USERNAME }}" >> .env
+            echo "PROD_URL=${{ secrets.PROD_URL }}" > .env
+            echo "PROD_PASSWORD=${{ secrets.PROD_PASSWORD }}" >> .env
+            echo "PROD_USERNAME=${{ secrets.PROD_USERNAME }}" >> .env
 
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d
