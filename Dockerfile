@@ -29,7 +29,7 @@ USER appuser
 EXPOSE 8080
 
 # Springboot healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=15s \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Fortæller at app.jar er en container, som giver den containerens ram istedet for systemet,
