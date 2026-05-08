@@ -5,5 +5,7 @@ docker run --name my-pg-dev \
   -p 5555:5432 \
   -d postgres:16
 
+docker exec -i my-pg-dev psql -U dev -d mydb
+
 #til dev enviorment variables
 DEV_DATABASE_URL=jdbc:postgresql://localhost:5555/mydb;DEV_USERNAME=dev;DEV_PASSWORD=devpass;GOOGLE_API_KEY=AIzaSyCSNA_6_1DtXYkftrRfQ9IIKi8h6IANwOA
