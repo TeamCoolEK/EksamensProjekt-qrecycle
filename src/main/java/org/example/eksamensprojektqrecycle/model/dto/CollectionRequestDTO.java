@@ -2,7 +2,7 @@ package org.example.eksamensprojektqrecycle.model.dto;
 
 import org.example.eksamensprojektqrecycle.model.enums.Status;
 
-public class CollectionDTO {
+public class CollectionRequestDTO {
 
     private int id;
     private String businessName;
