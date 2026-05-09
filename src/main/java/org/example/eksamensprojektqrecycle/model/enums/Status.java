@@ -1,4 +1,4 @@
-package org.example.eksamensprojektqrecycle.model;
+package org.example.eksamensprojektqrecycle.model.enums;
 
 public enum Status {
 
