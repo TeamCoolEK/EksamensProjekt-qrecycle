@@ -3,7 +3,7 @@ package org.example.eksamensprojektqrecycle.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.eksamensprojektqrecycle.model.Status;
+import org.example.eksamensprojektqrecycle.model.enums.Status;
 
 import java.time.LocalDate;
 

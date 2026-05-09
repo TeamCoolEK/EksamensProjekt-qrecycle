@@ -10,7 +10,7 @@ import java.util.List;
     @RestController
     @RequestMapping("/restaurant")
     @CrossOrigin(origins = "*")
-    public class RestaurantController {
+    public class BusinessController {
 
         @GetMapping("/getRestaurants")
         public List<String> getRestaurants() {
