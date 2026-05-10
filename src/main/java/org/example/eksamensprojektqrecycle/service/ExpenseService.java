@@ -17,36 +17,24 @@ public class ExpenseService {
         this.expenseRepository = expenseRepository;
     }
 
-    public void createExpense(
-            ExpenseRequestDTO dto,
-            AppUser user
-    ) {
-
+    public void createExpense(ExpenseRequestDTO dto, AppUser user) {
         validateExpense(dto);
-
         Expense expense = new Expense();
-
         expense.setTitle(dto.getTitle());
         expense.setAmount(dto.getAmount());
         expense.setReceiptBase64(dto.getReceiptBase64());
-
         expense.setDate(LocalDate.now());
-
         expense.setUser(user);
-
         expenseRepository.save(expense);
     }
 
     private void validateExpense(ExpenseRequestDTO dto) {
-
         if (dto.getTitle() == null || dto.getTitle().isBlank()) {
             throw new RuntimeException("Titel mangler");
         }
-
         if (dto.getAmount() <= 0) {
             throw new RuntimeException("Beløb skal være større end 0");
         }
-
         if (dto.getReceiptBase64() == null || dto.getReceiptBase64().isBlank()) {
             throw new RuntimeException("Bilag mangler");
         }

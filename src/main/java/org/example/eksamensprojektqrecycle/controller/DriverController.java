@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/driver")
-@CrossOrigin("*")
+@RequestMapping("/driver")
+@CrossOrigin(origins = "http://localhost:63342",
+        allowCredentials = "true"
+)
 public class DriverController {
 
     private final ExpenseService expenseService;
