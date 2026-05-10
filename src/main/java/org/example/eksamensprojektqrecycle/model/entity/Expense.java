@@ -4,45 +4,42 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-// Lombok laver automatisk getters/setters
+import java.time.LocalDate;
+
 @Getter
 @Setter
-
-// JPA entity for udgifter
 @Entity
 public class Expense {
 
-    // Primær nøgle i databasen
     @Id
-
-    // Auto increment ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    // Beløb på udgiften
-    private int value;
+    private double amount;
 
-    // Titel på udgiften
     private String title;
 
-    // Filnavn eller sti til kvittering/billede
     private String attachment;
 
-    // Mange expenses kan tilhøre én bruger
-    // Foreign key gemmes i Expense tabellen
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String receiptBase64;
+
+    private LocalDate date;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private AppUser user;
 
-    // Tom constructor
     public Expense() {
     }
 
-    // Constructor til oprettelse af expense
-    public Expense(int value, String title, String attachment, AppUser user) {
-        this.value = value;
+    public Expense(double amount, String title, String attachment, String receiptBase64, LocalDate date, AppUser user) {
+        this.amount = amount;
         this.title = title;
         this.attachment = attachment;
+        this.receiptBase64 = receiptBase64;
+        this.date = date;
         this.user = user;
     }
 }

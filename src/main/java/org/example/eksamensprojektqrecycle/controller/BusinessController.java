@@ -10,10 +10,7 @@ import java.util.List;
     @RestController
     @RequestMapping("/restaurant")
     @CrossOrigin(origins = "*")
+
     public class BusinessController {
 
-        @GetMapping("/getRestaurants")
-        public List<String> getRestaurants() {
-            return List.of("Restaurant 1", "Restaurant 2", "Restaurant 3");
-        }
     }
