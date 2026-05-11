@@ -22,9 +22,7 @@ public class DriverController {
 
     @PostMapping("/expenses")
     public ResponseEntity<?> createExpense(
-            @RequestBody ExpenseRequestDTO dto,
-            HttpSession session
-    ) {
+            @RequestBody ExpenseRequestDTO dto, HttpSession session) {
 
         AppUser loggedInUser =
                 (AppUser) session.getAttribute("user");
