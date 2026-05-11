@@ -1,7 +1,15 @@
 package org.example.eksamensprojektqrecycle.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class CreateBusinessDTO {
-    private String name;
+
+    private String companyName;
+    private String contactPerson;
+    private String phoneNumber;
     private String address;
-    private String phone;
+    private String username;
 }
