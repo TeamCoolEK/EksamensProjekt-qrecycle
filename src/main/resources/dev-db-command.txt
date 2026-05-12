@@ -3,7 +3,7 @@ docker run --name my-pg-dev \
   -e POSTGRES_PASSWORD=devpass \
   -e POSTGRES_DB=mydb \
   -p 5555:5432 \
-  -d postgres:16d
+  -d postgres:16
 
 docker exec -i my-pg-dev psql -U dev -d mydb
 

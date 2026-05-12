@@ -3,9 +3,13 @@ package org.example.eksamensprojektqrecycle.controller;
 import jakarta.servlet.http.HttpSession;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.entity.Expense;
+import org.example.eksamensprojektqrecycle.repository.ExpenseRepository;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/driver")
@@ -15,9 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class DriverController {
 
     private final ExpenseService expenseService;
+    private final ExpenseRepository expenseRepository;
 
-    public DriverController(ExpenseService expenseService) {
+    public DriverController(ExpenseService expenseService, ExpenseRepository expenseRepository) {
         this.expenseService = expenseService;
+        this.expenseRepository = expenseRepository;
     }
 
     @PostMapping("/expenses")

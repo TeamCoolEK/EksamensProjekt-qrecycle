@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) //Køre igennem Cors Config
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/admin").authenticated()
-                    .requestMatchers("/login", "/register", "/").permitAll() //Endpoints som er tilladt uden login
+                    .requestMatchers("/login", "/register", "/").permitAll()//Endpoints som er tilladt uden login
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults());
