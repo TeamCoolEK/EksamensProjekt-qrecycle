@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 
 // Tillader requests fra frontend
-@CrossOrigin("*")
+@CrossOrigin(
+        origins = "http://localhost:63342",
+        allowCredentials = "true"
+)
 public class AdminController {
 
     private final UserService userService; // Service bruges til brugerlogik
