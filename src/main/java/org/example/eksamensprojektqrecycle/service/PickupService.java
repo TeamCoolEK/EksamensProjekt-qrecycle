@@ -41,10 +41,7 @@ public class PickupService {
         collection.setDriverBags(bags);
         collectionRepository.save(collection);
     }
-}
-    //Spring injecter automatisk repository i PickupService  -> Dependency Injection  -> Spring håndterer lifecycle//
-    @Autowired //Lettere at teste -> kan mocke repository//
-    private CollectionRepository collectionRepository; //Spring finder CollectionRepository bean//
+
 
     public Collection getCollectionById(int collectionId) {
         //Kald repository for at søge i databasen//
