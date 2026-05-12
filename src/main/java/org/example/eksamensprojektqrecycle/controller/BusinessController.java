@@ -24,13 +24,15 @@ public class BusinessController {
     // Service bruges til business logik
     private final BusinessService businessService;
 
+    //Spring injecter automatisk PickupService//
+    private final PickupService pickupService;
+
     // Constructor injection
-    public BusinessController(BusinessService businessService) {
+    public BusinessController(BusinessService businessService, PickupService pickupService) {
         this.businessService = businessService;
+        this.pickupService = pickupService;
     }
-        //Spring injecter automatisk PickupService//
-        @Autowired
-        private PickupService pickupService;
+
 
         @PostMapping("/afhentning/klar") //Håndterer POST requests//
         public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
@@ -62,20 +64,19 @@ public class BusinessController {
         // Returnerer virksomhed + status 200
         return ResponseEntity.ok(createdBusiness);
     }
-}
         //Hent collection for at vise nuværende status//
         //GET /virrksomhed/afhentning/{id}//
 
-        @GetMapping("/afhentning/{id}")
-        public ResponseEntity<?> getCollection(@PathVariable int id) {
+    @GetMapping("/afhentning/{id}")
+    public ResponseEntity<?> getCollection(@PathVariable int id) {
 
-            try {
-                Collection collection = pickupService.getCollectionById(id);
-                return ResponseEntity.ok(collection);
-            } catch (RuntimeException  e) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(e.getMessage());
-            }
+        try {
+            Collection collection = pickupService.getCollectionById(id);
+            return ResponseEntity.ok(collection);
+        } catch (RuntimeException  e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         }
     }
+}
