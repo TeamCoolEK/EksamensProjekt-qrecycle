@@ -40,4 +40,20 @@ import org.springframework.web.bind.annotation.*;
 
             }
         }
+
+        //Hent collection for at vise nuværende status//
+        //GET /virrksomhed/afhentning/{id}//
+
+        @GetMapping("/afhentning/{id}")
+        public ResponseEntity<?> getCollection(@PathVariable int id) {
+
+            try {
+                Collection collection = pickupService.getCollectionById(id);
+                return ResponseEntity.ok(collection);
+            } catch (RuntimeException  e) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(e.getMessage());
+            }
+        }
     }
