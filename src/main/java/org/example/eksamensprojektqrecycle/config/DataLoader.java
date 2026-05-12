@@ -45,12 +45,12 @@ public class DataLoader implements CommandLineRunner {
         AppUser admin = userRepository.save(new AppUser("admin", "admin", Role.ADMIN));
         AppUser driver1 = userRepository.save(new AppUser("driver1", "driver1", Role.DRIVER));
         AppUser driver2 = userRepository.save(new AppUser("driver2", "driver2", Role.DRIVER));
-        AppUser bizUser1 = userRepository.save(new AppUser("genbrug_nord", "password", Role.BUSINESS));
+        AppUser bizUser1 = userRepository.save(new AppUser("Franks Pizza APS", "password", Role.BUSINESS));
         AppUser bizUser2 = userRepository.save(new AppUser("genbrug_syd", "password", Role.BUSINESS));
         AppUser bizUser3 = userRepository.save(new AppUser("genbrug_oest", "password", Role.BUSINESS));
 
         // Virksomheder
-        Business biz1 = businessRepository.save(new Business("Genbrug Nord ApS", "Frank Adamsen", "28123456", "Nørrebrogade 12, 2200 København N", bizUser1));
+        Business biz1 = businessRepository.save(new Business("Franks Pizza ApS", "Frank Adamsen", "28123456", "Nørrebrogade 12, 2200 København N", bizUser1));
         Business biz2 = businessRepository.save(new Business("Genbrug Syd ApS", "Frederik Jensen", "28765432", "Amager Landevej 88, 2300 København S", bizUser2));
         Business biz3 = businessRepository.save(new Business("Genbrug Øst ApS", "Emma Nielsen", "29112233", "Østerbrogade 45, 2100 København Ø", bizUser3));
 
