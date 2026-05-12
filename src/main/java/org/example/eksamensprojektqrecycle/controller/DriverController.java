@@ -83,4 +83,10 @@ public class DriverController {
         return ResponseEntity.ok("Udgift gemt");
     }
 
+
+    // Fanger RuntimeException og returnerer 500 med fejlbesked
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity.status(500).body(e.getMessage());
+    }
 }
