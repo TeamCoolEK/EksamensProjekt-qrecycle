@@ -23,7 +23,13 @@ public class Business {
     private int id;
 
     // Virksomhedens navn
-    private String name;
+    private String companyName;
+
+    // Kontaktperson hos virksomheden
+    private String contactPerson;
+
+    // Telefonnummer til virksomheden
+    private String phoneNumber;
 
     // Virksomhedens adresse
     private String address;
@@ -44,8 +50,16 @@ public class Business {
     }
 
     // Constructor til oprettelse af virksomhed
-    public Business(String name, String address, AppUser appUser) {
-        this.name = name;
+    public Business(
+            String companyName,
+            String contactPerson,
+            String phoneNumber,
+            String address,
+            AppUser appUser
+    ) {
+        this.companyName = companyName;
+        this.contactPerson = contactPerson;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.appUser = appUser;
     }
