@@ -59,11 +59,10 @@ public class BusinessController {
     // POST endpoint til oprettelse af virksomhed
     @PostMapping("/businesses")
     public ResponseEntity<Business> createBusiness(@RequestBody CreateBusinessDTO dto) {
-        // Opretter virksomhed via service
-        Business createdBusiness = businessService.createBusiness(dto);
-        // Returnerer virksomhed + status 200
-        return ResponseEntity.ok(createdBusiness);
+        Business createdBusiness = businessService.createBusiness(dto); // Opretter virksomhed via service
+        return ResponseEntity.ok(createdBusiness); // Returnerer virksomhed + status 200
     }
+
         //Hent collection for at vise nuværende status//
         //GET /virrksomhed/afhentning/{id}//
 

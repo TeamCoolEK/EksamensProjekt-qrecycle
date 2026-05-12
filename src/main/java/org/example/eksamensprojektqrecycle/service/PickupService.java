@@ -7,12 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
-import org.example.eksamensprojektqrecycle.model.entity.Collection;
-import org.example.eksamensprojektqrecycle.model.enums.Status;
-import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 
