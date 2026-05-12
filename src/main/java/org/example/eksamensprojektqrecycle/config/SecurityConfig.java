@@ -15,6 +15,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                     .requestMatchers("/").authenticated()
                     .requestMatchers("/login").permitAll()
+                        .requestMatchers("/driver/**").permitAll() // Midlertidigt til test indtil login er helt klar
                 )
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
