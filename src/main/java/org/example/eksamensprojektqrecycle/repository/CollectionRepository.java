@@ -1,7 +1,17 @@
 package org.example.eksamensprojektqrecycle.repository;
 
+import org.example.eksamensprojektqrecycle.model.entity.Collection;
+import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class CollectionRepository {
+public interface CollectionRepository extends JpaRepository<Collection, Integer> {
+
+    @Query("SELECT SUM(c.businessBags) FROM Collection c WHERE c.status = :status")
+    Integer sumBusinessBagsByStatus(@Param("status") Status status);
+
+    Integer Status(Status status);
 }
