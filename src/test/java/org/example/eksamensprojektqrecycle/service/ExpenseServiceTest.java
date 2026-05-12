@@ -49,10 +49,7 @@ class ExpenseServiceTest {
         // Tjekker at data blev gemt korrekt
         assertEquals("Benzin", savedExpense.getTitle());
         assertEquals(150, savedExpense.getAmount());
-        assertEquals(
-                "data:image/png;base64,test",
-                savedExpense.getReceiptBase64()
-        );
+        assertEquals("data:image/png;base64,test", savedExpense.getReceiptBase64());
 
         assertEquals(user, savedExpense.getUser());
 
@@ -105,7 +102,6 @@ class ExpenseServiceTest {
         // Verificerer at save() aldrig bliver kaldt
         verify(expenseRepository, never()).save(any());
     }
-
 
     // Tester at exception kastes hvis bilag mangler
     @Test
