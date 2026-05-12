@@ -41,7 +41,7 @@ public class DriverController {
 
                     CollectionRequestDTO dto = new CollectionRequestDTO();
                     dto.setId(c.getId());
-                    dto.setBusinessName(c.getBusiness().getName());
+                    dto.setBusinessName(c.getBusiness().getCompanyName());
                     dto.setAddress(c.getBusiness().getAddress());
                     dto.setStatus(c.getStatus());
                     return dto;
