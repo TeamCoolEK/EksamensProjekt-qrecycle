@@ -9,13 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "*") // Browseren afviser enhver api kald fra frontend, med mindre origins er sat til * (alle) eller localhost:(Frontends port) ELLER teamcool.swag.dk:(port) :)
 public class LoginController {
 
     @Autowired
@@ -41,5 +37,10 @@ public class LoginController {
             );
         }
         return response; // returnere respons
+    }
+
+    @GetMapping("/admin")
+    public String getAdminUser() {
+        return "admin";
     }
 }
