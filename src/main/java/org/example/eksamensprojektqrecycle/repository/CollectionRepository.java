@@ -7,11 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface CollectionRepository extends JpaRepository<Collection, Integer> {
 
+    List<Collection> findByStatus(Status status);
+  
     @Query("SELECT SUM(c.businessBags) FROM Collection c WHERE c.status = :status")
     Integer sumBusinessBagsByStatus(@Param("status") Status status);
 
     Integer Status(Status status);
 }
+

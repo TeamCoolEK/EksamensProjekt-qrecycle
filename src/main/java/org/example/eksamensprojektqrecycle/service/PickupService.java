@@ -1,5 +1,11 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.entity.Collection;
+import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
@@ -15,6 +21,27 @@ import java.util.Optional;
 @Service
 public class PickupService {
 
+    private final CollectionRepository collectionRepository;
+
+    public PickupService(CollectionRepository collectionRepository) {
+        this.collectionRepository = collectionRepository;
+    }
+
+    // Henter alle afhentninger med status KLAR
+    public List<Collection> getActiveCollections() {
+        return collectionRepository.findByStatus(Status.KLAR);
+    }
+
+    // Markerer afhentning som afsluttet og gemmer antal poser
+    public void completeCollection(int id, int bags) {
+        Collection collection = collectionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Afhentning ikke fundet"));
+
+        collection.setStatus(Status.AFHENTET);
+        collection.setDriverBags(bags);
+        collectionRepository.save(collection);
+    }
+}
     //Spring injecter automatisk repository i PickupService  -> Dependency Injection  -> Spring håndterer lifecycle//
     @Autowired //Lettere at teste -> kan mocke repository//
     private CollectionRepository collectionRepository; //Spring finder CollectionRepository bean//
