@@ -30,9 +30,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) //CSRF disable for REST API's
                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) //Køre igennem Cors Config
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/admin").authenticated()
+                    .requestMatchers("/admin/**").authenticated()
                     .requestMatchers("/login", "/register", "/").permitAll() //Endpoints som er tilladt uden login
-                )
+                ) 
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults());
         return http.build();
