@@ -62,8 +62,7 @@ class DriverControllerTest {
         AppUser user = new AppUser();
 
         // Simulerer POST request til endpoint
-        mockMvc.perform(post("/api/driver/expenses")
-
+        mockMvc.perform(post("/driver/expenses")
                         // Simulerer login session
                         .sessionAttr("user", user)
 
@@ -100,8 +99,7 @@ class DriverControllerTest {
         );
 
         // Simulerer POST request uden session
-        mockMvc.perform(post("/api/driver/expenses")
-
+        mockMvc.perform(post("/driver/expenses")
                         .contentType("application/json")
 
                         .content(

@@ -71,11 +71,11 @@ class UserServiceTest {
 
     // Tester at admin gemmes korrekt når password har stort bogstav og tal
     @Test
-    void createUser_shouldSaveAdmin_whenPasswordHasUppercaseAndNumber() {
+    void createUser_shouldSaveAdmin_whenPasswordHasUppercaseAndNumberAndLowercaseAndSpecialCharacters() {
 
         CreateUserDTO dto = new CreateUserDTO();
         dto.setUsername("admin1");
-        dto.setPassword("Admin1");
+        dto.setPassword("Admin1!");
         dto.setRole(Role.ADMIN);
 
         userService.createUser(dto);
@@ -88,7 +88,7 @@ class UserServiceTest {
         AppUser savedUser = captor.getValue();
 
         assertEquals("admin1", savedUser.getUsername());
-        assertEquals("Admin1", savedUser.getPassword());
+        assertEquals("Admin1!", savedUser.getPassword());
         assertEquals(Role.ADMIN, savedUser.getRole());
     }
 
@@ -115,6 +115,20 @@ class UserServiceTest {
         CreateUserDTO dto = new CreateUserDTO();
         dto.setUsername("admin1");
         dto.setPassword("Admin");
+        dto.setRole(Role.ADMIN);
+
+        assertThrows(RuntimeException.class, () -> {
+            userService.createUser(dto);
+        });
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void createUser_shouldThrowException_whenAdminPasswordHasNoSpecialCharacters() {
+        CreateUserDTO dto = new CreateUserDTO();
+        dto.setUsername("admin1");
+        dto.setPassword("Admin1");
         dto.setRole(Role.ADMIN);
 
         assertThrows(RuntimeException.class, () -> {
