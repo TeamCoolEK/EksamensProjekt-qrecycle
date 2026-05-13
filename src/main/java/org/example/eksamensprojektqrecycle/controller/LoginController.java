@@ -51,13 +51,15 @@ public class LoginController {
         return response; // returnere respons
     }
 
-    @PostMapping("/doLogin")
+    @PostMapping("/login")
     public ResponseEntity<String> doLogin(@RequestBody AppUser appUser) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(appUser.getUsername(), appUser.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        appUser.getUsername(), appUser.getPassword())
         );
         if (authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.OK).body("User logged in successfully");
+            System.out.println("User logged in successfully");
+            return ResponseEntity.ok("User logged in successfully");
         } else {
             throw new UsernameNotFoundException("User not found: " + appUser.getUsername());
         }

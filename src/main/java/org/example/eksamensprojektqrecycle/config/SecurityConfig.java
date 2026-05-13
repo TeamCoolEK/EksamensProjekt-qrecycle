@@ -75,7 +75,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(","))); //origins gemmes i en liste ud fra allowedOrigins String som separeres med ,
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); //Tillader disse endpoint metoder
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); //credentials til spring security
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
