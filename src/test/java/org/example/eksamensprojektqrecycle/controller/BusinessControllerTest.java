@@ -90,12 +90,6 @@ class BusinessControllerTest {
     }
 
     /**
-     * Test: createBusiness succes
-     * Endpoint: POST /business/businesses
-     * Forventet: HTTP 200 og den oprettede Business i svaret
-     */
-
-    /**
      * Test: getCollection success
      * Endpoint: GET /business/afhentning/{id}
      * Forventet: HTTP 200 og den ønskede Collection
