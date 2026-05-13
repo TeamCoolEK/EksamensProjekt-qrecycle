@@ -8,6 +8,7 @@ import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -64,5 +65,9 @@ public class BusinessService {
         int number = 1000 + random.nextInt(9000);
 
         return String.valueOf(number);
+    }
+
+    public List<Business> getAllBusinesses() {
+        return businessRepository.findAll();
     }
 }
