@@ -73,4 +73,23 @@ public class PickupService {
 
     }
 
+    public Collection cancelPickup(int collectionId) {
+        //QE-116: Hent collection fra database via ID//
+        Collection collection =getCollectionById(collectionId);
+
+        //QE-115: validér at kun afhentninger med status KLAR kan annulleres - tjekker at status er KLAR før annullering//
+        if (collection.getStatus() != Status.KLAR) {
+            throw new RuntimeException(
+                    "Kun  afhentninger med status 'Klar' kan annulleres." +
+                            "Nuværende status: " + collection.getStatus()
+            );
+        }
+
+        //QE-117: Opdaterer status fra KLAR tilbage til IKKE_KLAR//
+        collection.setStatus(Status.IKKE_KLAR);
+
+        //QE-118: Gem statusændringen i DB//
+        //QE-119: @PreUpdate fra Collection entity klassen opdaterer//
+        return collectionRepository.save(collection);
+    }
 }
