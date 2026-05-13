@@ -34,37 +34,30 @@ public class BusinessController {
     }
 
 
-        @PostMapping("/afhentning/klar") //Håndterer POST requests//
-        public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
-            //<?> betyder "kan returnere hvilken som helst type"//
+    @PostMapping("/afhentning/klar") //Håndterer POST requests//
+    public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
+        //<?> betyder "kan returnere hvilken som helst type"//
 
-            try {
-                //Kald service til at opdatere collection//
-                Collection updatedCollection = pickupService.markReadyForPickup(dto);
+        try {
+            //Kald service til at opdatere collection//
+            Collection updatedCollection = pickupService.markReadyForPickup(dto);
 
-                //QE-82: Send bekræftelse tilbage til frontend//
-                return ResponseEntity.ok(updatedCollection);
+            //QE-82: Send bekræftelse tilbage til frontend//
+            return ResponseEntity.ok(updatedCollection);
 
-            } catch (RuntimeException e) {
-                //Hvis noget gik galt, validering eller collection ikke fundet etc. //
+        } catch (RuntimeException e) {
+            //Hvis noget gik galt, validering eller collection ikke fundet etc. //
 
-                // -> send fejlbesked til frontend//
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(e.getMessage()); //fejlbeskeden om at afhentningen ikke findes//
+            // -> send fejlbesked til frontend//
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage()); //fejlbeskeden om at afhentningen ikke findes//
 
-            }
         }
-
-    // POST endpoint til oprettelse af virksomhed
-    @PostMapping("/businesses")
-    public ResponseEntity<Business> createBusiness(@RequestBody CreateBusinessDTO dto) {
-        Business createdBusiness = businessService.createBusiness(dto); // Opretter virksomhed via service
-        return ResponseEntity.ok(createdBusiness); // Returnerer virksomhed + status 200
     }
 
     //Hent collection for at vise nuværende status//
-    //GET /virrksomhed/afhentning/{id}//
+    //GET /business/afhentning/{id}//
 
     @GetMapping("/afhentning/{id}")
     public ResponseEntity<?> getCollection(@PathVariable int id) {
@@ -72,7 +65,7 @@ public class BusinessController {
         try {
             Collection collection = pickupService.getCollectionById(id);
             return ResponseEntity.ok(collection);
-        } catch (RuntimeException  e) {
+        } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
