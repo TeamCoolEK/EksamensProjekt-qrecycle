@@ -88,8 +88,10 @@ public class UserService implements UserDetailsService {
         if (dto.getRole() == Role.ADMIN) {
             boolean hasUppercase = password.matches(".*[A-Z].*");
             boolean hasNumber = password.matches(".*\\d.*");
+            boolean hasLowercase = password.matches(".*[a-z].*");
+            boolean hasSpecialCharacter = password.matches(".*[^a-zA-Z0-9].*");
 
-            if (!hasUppercase || !hasNumber) {
+            if (!hasUppercase || !hasNumber || !hasLowercase || !hasSpecialCharacter) {
                 throw new RuntimeException("Admin password skal indeholde stort bogstav og tal");
             }
         }
