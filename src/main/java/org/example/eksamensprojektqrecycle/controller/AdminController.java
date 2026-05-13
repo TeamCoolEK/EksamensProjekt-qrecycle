@@ -1,10 +1,17 @@
 package org.example.eksamensprojektqrecycle.controller;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.entity.Business;
+import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.service.BusinessService;
+import org.example.eksamensprojektqrecycle.service.StatisticService;
 import org.example.eksamensprojektqrecycle.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 // Base URL til admin endpoints
@@ -16,18 +23,43 @@ import org.springframework.web.bind.annotation.*;
         allowCredentials = "true"
 )
 public class AdminController {
-    // Service bruges til brugerlogik
-    private final UserService userService;
-    // Constructor injection
-    public AdminController(UserService userService) {
+
+    private final UserService userService; // Service bruges til brugerlogik
+    private final StatisticService statisticService;
+    private final BusinessService businessService;
+
+    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService) { // Constructor injection
         this.userService = userService;
+        this.statisticService = statisticService;
+        this.businessService = businessService;
     }
+
+    // GET endpoint til hentning af dashboard data
+   @GetMapping("/dashboard")
+   public ResponseEntity<Integer> getDashboardData() {
+
+        int bagsReadyForPickup = statisticService.getBagsReadyForPickup(); // Henter antal poser klar til afhentning via service
+        return ResponseEntity.ok(bagsReadyForPickup); // Returnere antal poser + status 200 (ok)
+   }
+
     // POST endpoint til oprettelse af bruger
     @PostMapping("/users")
     public ResponseEntity<AppUser> createUser(@RequestBody CreateUserDTO dto) {
-        // Opretter bruger via service
-        AppUser createdUser = userService.createUser(dto);
-        // Returnerer bruger + status 200
-        return ResponseEntity.ok(createdUser);
+        AppUser createdUser = userService.createUser(dto); // Opretter bruger via service
+        return ResponseEntity.ok(createdUser); // Returnerer bruger + status 200
+    }
+
+    @GetMapping("/businesses")
+    public ResponseEntity<List<Business>> getAllBusinesses() {
+        List<Business> businesses = businessService.getAllBusinesses();
+
+        return ResponseEntity.ok(businesses);
+    }
+
+    // POST endpoint til oprettelse af virksomhed
+    @PostMapping("/businesses")
+    public ResponseEntity<Business> createBusiness(@RequestBody CreateBusinessDTO dto) {
+        Business createdBusiness = businessService.createBusiness(dto); // Opretter virksomhed via service
+        return ResponseEntity.ok(createdBusiness); // Returnerer virksomhed + status 200
     }
 }
