@@ -1,11 +1,10 @@
 package org.example.eksamensprojektqrecycle.controller;
 
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.eksamensprojektqrecycle.model.dto.LoginDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
+import org.example.eksamensprojektqrecycle.service.JWTTokenGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +18,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class LoginController {
+
+    @Autowired
+    JWTTokenGeneratorService jwtService;
 
     @Autowired
     UserRepository userRepository;
@@ -52,23 +56,44 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> doLogin(@RequestBody AppUser appUser) {
+    public ResponseEntity<String> doLogin(@RequestBody AppUser appUser, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         appUser.getUsername(), appUser.getPassword())
         );
         if (authentication.isAuthenticated()) {
-            System.out.println("User logged in successfully");
+            //Generere JWTToken og sætter den i header!
+            String token = jwtService.generateToken(authentication);
+            response.setHeader("Authorization",token);
             return ResponseEntity.ok("User logged in successfully");
         } else {
             throw new UsernameNotFoundException("User not found: " + appUser.getUsername());
         }
     }
+
     //get til at hente user fra spring context
     @GetMapping("/auth")
     public Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
+
+    //endpoint til at hente authentication af user (users rolle til videresende til dashboard)
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> getMe(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String username = (String) authentication.getPrincipal();
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+
+        Map<String, String> body = new HashMap<>();
+        body.put("username", username);
+        body.put("role", role);
+
+        return ResponseEntity.ok(body);
+    }
+
     //Retunere JWT key på nuværende bruger
     @GetMapping("/jwtkey")
     public String getJwtKey() {

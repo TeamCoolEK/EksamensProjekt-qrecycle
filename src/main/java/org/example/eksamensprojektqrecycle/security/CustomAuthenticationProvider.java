@@ -29,6 +29,7 @@ public class CustomAuthenticationProvider implements org.springframework.securit
         this.passwordEncoder = passwordEncoder;
     }
 
+    //overrider authentication metoden, til at authenticate en bruger
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
