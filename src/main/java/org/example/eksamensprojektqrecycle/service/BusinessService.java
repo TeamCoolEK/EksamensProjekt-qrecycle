@@ -1,6 +1,7 @@
 package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
@@ -69,5 +70,36 @@ public class BusinessService {
 
     public List<Business> getAllBusinesses() {
         return businessRepository.findAll();
+    }
+
+    public Business updateBusiness(int id, UpdateBusinessDTO dto) {
+
+        Business business = businessRepository.findById(id).orElseThrow(() ->
+                        new RuntimeException("Virksomhed blev ikke fundet"));
+
+        validateUpdateBusiness(dto);
+
+        business.setCompanyName(dto.getCompanyName());
+        business.setContactPerson(dto.getContactPerson());
+        business.setPhoneNumber(dto.getPhoneNumber());
+        business.setAddress(dto.getAddress());
+
+        return businessRepository.save(business);
+    }
+
+    private void validateUpdateBusiness(UpdateBusinessDTO dto) {
+
+        if (dto.getCompanyName() == null || dto.getCompanyName().isBlank()) {
+            throw new RuntimeException("Virksomhedsnavn mangler");
+        }
+        if (dto.getContactPerson() == null || dto.getContactPerson().isBlank()) {
+            throw new RuntimeException("Kontaktperson mangler");
+        }
+        if (dto.getPhoneNumber() == null || dto.getPhoneNumber().isBlank()) {
+            throw new RuntimeException("Telefonnummer mangler");
+        }
+        if (dto.getAddress() == null || dto.getAddress().isBlank()) {
+            throw new RuntimeException("Adresse mangler");
+        }
     }
 }

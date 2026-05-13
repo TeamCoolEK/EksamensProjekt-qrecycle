@@ -2,6 +2,7 @@ package org.example.eksamensprojektqrecycle.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
 import org.example.eksamensprojektqrecycle.service.StatisticService;
@@ -18,8 +19,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,5 +146,74 @@ class AdminControllerTest {
 
         // Verificerer at createBusiness blev kaldt i service
         verify(businessService).createBusiness(any(CreateBusinessDTO.class));
+    }
+
+    // Tester at admin kan opdatere virksomhed
+    @Test
+    void updateBusiness_shouldReturnUpdatedBusiness_whenDataIsValid() throws Exception {
+
+        // Opretter DTO med opdaterede oplysninger
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Opretter opdateret virksomhed
+        Business updatedBusiness = new Business();
+        updatedBusiness.setId(1);
+        updatedBusiness.setCompanyName("Franks Pizza Updated");
+        updatedBusiness.setContactPerson("Frank Hansen");
+        updatedBusiness.setPhoneNumber("30112233");
+        updatedBusiness.setAddress("Amagerbrogade 45");
+
+        // Mock service
+        when(businessService.updateBusiness(any(Integer.class), any(UpdateBusinessDTO.class)))
+                .thenReturn(updatedBusiness);
+
+        // Sender PUT request til endpoint
+        mockMvc.perform(put("/admin/businesses/1")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(dto)))
+
+                // Tjekker HTTP status
+                .andExpect(status().isOk())
+
+                // Tjekker response
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.companyName").value("Franks Pizza Updated"))
+                .andExpect(jsonPath("$.contactPerson").value("Frank Hansen"))
+                .andExpect(jsonPath("$.phoneNumber").value("30112233"))
+                .andExpect(jsonPath("$.address").value("Amagerbrogade 45"));
+
+        // Verificerer service kald
+        verify(businessService).updateBusiness(any(Integer.class), any(UpdateBusinessDTO.class));
+    }
+
+    // Tester fejl hvis service kaster exception
+    @Test
+    void updateBusiness_shouldReturnBadRequest_whenServiceThrowsException() throws Exception {
+
+        // Opretter DTO
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock service fejl
+        when(businessService.updateBusiness(any(Integer.class), any(UpdateBusinessDTO.class)))
+                .thenThrow(new RuntimeException("Virksomhedsnavn mangler"));
+
+        // Sender PUT request
+        mockMvc.perform(put("/admin/businesses/1")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(dto)))
+
+                // Tjekker status 400
+                .andExpect(status().isBadRequest());
+
+        // Verificerer service kald
+        verify(businessService).updateBusiness(any(Integer.class), any(UpdateBusinessDTO.class));
     }
 }
