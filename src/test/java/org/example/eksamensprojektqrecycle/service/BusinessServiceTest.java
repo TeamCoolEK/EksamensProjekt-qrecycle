@@ -9,6 +9,8 @@ import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -129,5 +131,63 @@ class BusinessServiceTest {
         // Verificerer at intet gemmes
         verify(userRepository, never()).save(any());
         verify(businessRepository, never()).save(any());
+    }
+    // Tester at alle virksomheder hentes fra repository
+    @Test
+    void getAllBusinesses_shouldReturnAllBusinesses() {
+
+        // Opretter test virksomheder
+        Business business1 = new Business();
+        business1.setCompanyName("Franks Pizza");
+        business1.setContactPerson("Frank");
+        business1.setPhoneNumber("28123456");
+        business1.setAddress("Nørrebrogade 12");
+
+        Business business2 = new Business();
+        business2.setCompanyName("Burger House");
+        business2.setContactPerson("Hans");
+        business2.setPhoneNumber("30112233");
+        business2.setAddress("Amagerbrogade 45");
+
+        // Mock repository
+        when(businessRepository.findAll())
+                .thenReturn(List.of(business1, business2));
+
+        // Kalder service metode
+        List<Business> businesses = businessService.getAllBusinesses();
+
+        // Verificerer resultat
+        assertEquals(2, businesses.size());
+
+        assertEquals("Franks Pizza", businesses.get(0).getCompanyName());
+        assertEquals("Frank", businesses.get(0).getContactPerson());
+        assertEquals("28123456", businesses.get(0).getPhoneNumber());
+        assertEquals("Nørrebrogade 12", businesses.get(0).getAddress());
+
+        assertEquals("Burger House", businesses.get(1).getCompanyName());
+        assertEquals("Hans", businesses.get(1).getContactPerson());
+        assertEquals("30112233", businesses.get(1).getPhoneNumber());
+        assertEquals("Amagerbrogade 45", businesses.get(1).getAddress());
+
+        // Verificerer at repository blev kaldt
+        verify(businessRepository).findAll();
+    }
+
+    // Tester at tom liste returneres hvis der ikke findes virksomheder
+    @Test
+    void getAllBusinesses_shouldReturnEmptyList_whenNoBusinessesExist() {
+
+        // Mock tom liste
+        when(businessRepository.findAll())
+                .thenReturn(List.of());
+
+        // Kalder service metode
+        List<Business> businesses = businessService.getAllBusinesses();
+
+        // Verificerer resultat
+        assertTrue(businesses.isEmpty());
+
+        // Verificerer at repository blev kaldt
+        verify(businessRepository).findAll();
     }
 }

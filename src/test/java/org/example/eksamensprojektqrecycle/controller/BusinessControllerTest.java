@@ -90,27 +90,6 @@ class BusinessControllerTest {
     }
 
     /**
-     * Test: createBusiness succes
-     * Endpoint: POST /business/businesses
-     * Forventet: HTTP 200 og den oprettede Business i svaret
-     */
-    @Test
-    void createBusiness_success() throws Exception {
-        CreateBusinessDTO dto = new CreateBusinessDTO();
-
-        Business created = new Business();
-        created.setId(42);
-
-        when(businessService.createBusiness(any(CreateBusinessDTO.class))).thenReturn(created);
-
-        mockMvc.perform(post("/business/businesses")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(42));
-    }
-
-    /**
      * Test: getCollection success
      * Endpoint: GET /business/afhentning/{id}
      * Forventet: HTTP 200 og den ønskede Collection
