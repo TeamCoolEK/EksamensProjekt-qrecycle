@@ -1,6 +1,7 @@
 package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -189,5 +191,227 @@ class BusinessServiceTest {
 
         // Verificerer at repository blev kaldt
         verify(businessRepository).findAll();
+    }
+
+    // Tester at virksomhed kan opdateres når data er valid
+    @Test
+    void updateBusiness_shouldUpdateBusiness_whenDataIsValid() {
+
+        // Opretter eksisterende virksomhed
+        Business business = new Business();
+        business.setId(1);
+        business.setCompanyName("Franks Pizza");
+        business.setContactPerson("Frank");
+        business.setPhoneNumber("28123456");
+        business.setAddress("Nørrebrogade 12");
+
+        // Opretter DTO med nye oplysninger
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Mock save
+        when(businessRepository.save(any(Business.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Kalder service metode
+        Business updatedBusiness = businessService.updateBusiness(1, dto);
+
+        // Verificerer opdaterede oplysninger
+        assertEquals("Franks Pizza Updated", updatedBusiness.getCompanyName());
+        assertEquals("Frank Hansen", updatedBusiness.getContactPerson());
+        assertEquals("30112233", updatedBusiness.getPhoneNumber());
+        assertEquals("Amagerbrogade 45", updatedBusiness.getAddress());
+
+        // Verificerer repository kald
+        verify(businessRepository).findById(1);
+        verify(businessRepository).save(business);
+    }
+
+    // Tester fejl hvis virksomhed ikke findes
+    @Test
+    void updateBusiness_shouldThrowException_whenBusinessDoesNotExist() {
+
+        // Opretter DTO
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock findById til tom Optional
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        // Forventer exception
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            businessService.updateBusiness(1, dto);
+        });
+
+        // Verificerer fejlbesked
+        assertEquals("Virksomhed blev ikke fundet", exception.getMessage());
+
+        // Verificerer at save ikke bliver kaldt
+        verify(businessRepository, never()).save(any());
+    }
+
+    // Tester fejl hvis virksomhedsnavn mangler
+    @Test
+    void updateBusiness_shouldThrowException_whenCompanyNameIsEmpty() {
+
+        // Opretter eksisterende virksomhed
+        Business business = new Business();
+        business.setId(1);
+
+        // Opretter DTO med tomt virksomhedsnavn
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Forventer exception
+        assertThrows(RuntimeException.class, () -> {
+            businessService.updateBusiness(1, dto);
+        });
+
+        // Verificerer at save ikke bliver kaldt
+        verify(businessRepository, never()).save(any());
+    }
+
+    // Tester fejl hvis kontaktperson mangler
+    @Test
+    void updateBusiness_shouldThrowException_whenContactPersonIsEmpty() {
+
+        // Opretter eksisterende virksomhed
+        Business business = new Business();
+        business.setId(1);
+
+        // Opretter DTO med tom kontaktperson
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Forventer exception
+        assertThrows(RuntimeException.class, () -> {
+            businessService.updateBusiness(1, dto);
+        });
+
+        // Verificerer at save ikke bliver kaldt
+        verify(businessRepository, never()).save(any());
+    }
+
+    // Tester fejl hvis telefonnummer mangler
+    @Test
+    void updateBusiness_shouldThrowException_whenPhoneNumberIsEmpty() {
+
+        // Opretter eksisterende virksomhed
+        Business business = new Business();
+        business.setId(1);
+
+        // Opretter DTO med tomt telefonnummer
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("");
+        dto.setAddress("Amagerbrogade 45");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Forventer exception
+        assertThrows(RuntimeException.class, () -> {
+            businessService.updateBusiness(1, dto);
+        });
+
+        // Verificerer at save ikke bliver kaldt
+        verify(businessRepository, never()).save(any());
+    }
+
+    // Tester fejl hvis adresse mangler
+    @Test
+    void updateBusiness_shouldThrowException_whenAddressIsEmpty() {
+
+        // Opretter eksisterende virksomhed
+        Business business = new Business();
+        business.setId(1);
+
+        // Opretter DTO med tom adresse
+        UpdateBusinessDTO dto = new UpdateBusinessDTO();
+        dto.setCompanyName("Franks Pizza Updated");
+        dto.setContactPerson("Frank Hansen");
+        dto.setPhoneNumber("30112233");
+        dto.setAddress("");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Forventer exception
+        assertThrows(RuntimeException.class, () -> {
+            businessService.updateBusiness(1, dto);
+        });
+
+        // Verificerer at save ikke bliver kaldt
+        verify(businessRepository, never()).save(any());
+    }
+    // Tester at virksomhed slettes når den findes
+    @Test
+    void deleteBusiness_shouldDeleteBusiness_whenBusinessExists() {
+
+        // Opretter test virksomhed
+        Business business = new Business();
+        business.setId(1);
+        business.setCompanyName("Franks Pizza");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Kalder service metode
+        businessService.deleteBusiness(1);
+
+        // Verificerer at virksomheden findes
+        verify(businessRepository).findById(1);
+
+        // Verificerer at virksomheden slettes
+        verify(businessRepository).delete(business);
+    }
+
+    // Tester fejl hvis virksomhed ikke findes
+    @Test
+    void deleteBusiness_shouldThrowException_whenBusinessDoesNotExist() {
+
+        // Mock findById til tom Optional
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        // Forventer exception
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            businessService.deleteBusiness(1);
+        });
+
+        // Verificerer fejlbesked
+        assertEquals("Virksomheden blev ikke fundet", exception.getMessage());
+
+        // Verificerer at delete ikke kaldes
+        verify(businessRepository, never()).delete(any(Business.class));
     }
 }

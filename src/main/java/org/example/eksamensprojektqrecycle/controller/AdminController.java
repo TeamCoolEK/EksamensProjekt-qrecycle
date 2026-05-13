@@ -2,12 +2,13 @@ package org.example.eksamensprojektqrecycle.controller;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.model.enums.Status;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
 import org.example.eksamensprojektqrecycle.service.StatisticService;
 import org.example.eksamensprojektqrecycle.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,4 +63,30 @@ public class AdminController {
         Business createdBusiness = businessService.createBusiness(dto); // Opretter virksomhed via service
         return ResponseEntity.ok(createdBusiness); // Returnerer virksomhed + status 200
     }
+
+    @PutMapping("/businesses/{id}")
+    public ResponseEntity<?> updateBusiness(@PathVariable Integer id, @RequestBody UpdateBusinessDTO dto) {
+        try {
+            Business updatedBusiness = businessService.updateBusiness(id, dto);
+            return ResponseEntity.ok(updatedBusiness);
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/businesses/{id}")
+    public ResponseEntity<?> deleteBusiness(@PathVariable int id) {
+
+        try {
+            businessService.deleteBusiness(id);
+            return ResponseEntity.ok("Virksomhed slettet");
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
