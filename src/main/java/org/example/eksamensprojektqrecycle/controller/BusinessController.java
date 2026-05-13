@@ -63,8 +63,8 @@ public class BusinessController {
         return ResponseEntity.ok(createdBusiness); // Returnerer virksomhed + status 200
     }
 
-        //Hent collection for at vise nuværende status//
-        //GET /virrksomhed/afhentning/{id}//
+    //Hent collection for at vise nuværende status//
+    //GET /virrksomhed/afhentning/{id}//
 
     @GetMapping("/afhentning/{id}")
     public ResponseEntity<?> getCollection(@PathVariable int id) {
