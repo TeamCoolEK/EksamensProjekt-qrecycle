@@ -102,4 +102,10 @@ public class BusinessService {
             throw new RuntimeException("Adresse mangler");
         }
     }
+
+    public void deleteBusiness(int id) {
+        Business business = businessRepository.findById(id).orElseThrow(()-> new RuntimeException("Virksomheden blev ikke fundet"));
+
+        businessRepository.delete(business);
+    }
 }

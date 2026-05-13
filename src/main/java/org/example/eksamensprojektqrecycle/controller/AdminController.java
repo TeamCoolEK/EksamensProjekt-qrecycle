@@ -77,4 +77,16 @@ public class AdminController {
         }
     }
 
+    @DeleteMapping("/businesses/{id}")
+    public ResponseEntity<?> deleteBusiness(@PathVariable int id) {
+
+        try {
+            businessService.deleteBusiness(id);
+            return ResponseEntity.ok("Virksomhed slettet");
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
