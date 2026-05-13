@@ -4,6 +4,7 @@ import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
 import org.example.eksamensprojektqrecycle.service.PickupService;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import tools.jackson.databind.ObjectMapper;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 // Starter kun web/controller laget af Spring
 @WebMvcTest(DriverController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class DriverControllerTest {
 
     // Bruges til at simulere HTTP requests
