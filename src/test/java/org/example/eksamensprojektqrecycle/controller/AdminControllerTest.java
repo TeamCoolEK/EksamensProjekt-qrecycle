@@ -19,9 +19,12 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 // Tester kun AdminController
 @WebMvcTest(AdminController.class)
@@ -215,5 +218,44 @@ class AdminControllerTest {
 
         // Verificerer service kald
         verify(businessService).updateBusiness(any(Integer.class), any(UpdateBusinessDTO.class));
+    }
+
+    // Tester at admin kan slette virksomhed
+    @Test
+    void deleteBusiness_shouldReturnOk_whenBusinessExists() throws Exception {
+
+        // Sender DELETE request til endpoint
+        mockMvc.perform(delete("/admin/businesses/1"))
+
+                // Tjekker at HTTP status er 200 OK
+                .andExpect(status().isOk())
+
+                // Tjekker response besked
+                .andExpect(content().string("Virksomhed slettet"));
+
+        // Verificerer at service-metoden blev kaldt
+        verify(businessService).deleteBusiness(1);
+    }
+
+    // Tester fejl hvis virksomheden ikke findes
+    @Test
+    void deleteBusiness_shouldReturnBadRequest_whenBusinessDoesNotExist() throws Exception {
+
+        // Mock service til at kaste fejl
+        doThrow(new RuntimeException("Virksomhed blev ikke fundet"))
+                .when(businessService)
+                .deleteBusiness(1);
+
+        // Sender DELETE request til endpoint
+        mockMvc.perform(delete("/admin/businesses/1"))
+
+                // Tjekker at HTTP status er 400 Bad Request
+                .andExpect(status().isBadRequest())
+
+                // Tjekker fejlbesked
+                .andExpect(content().string("Virksomhed blev ikke fundet"));
+
+        // Verificerer at service-metoden blev kaldt
+        verify(businessService).deleteBusiness(1);
     }
 }

@@ -372,4 +372,46 @@ class BusinessServiceTest {
         // Verificerer at save ikke bliver kaldt
         verify(businessRepository, never()).save(any());
     }
+    // Tester at virksomhed slettes når den findes
+    @Test
+    void deleteBusiness_shouldDeleteBusiness_whenBusinessExists() {
+
+        // Opretter test virksomhed
+        Business business = new Business();
+        business.setId(1);
+        business.setCompanyName("Franks Pizza");
+
+        // Mock findById
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.of(business));
+
+        // Kalder service metode
+        businessService.deleteBusiness(1);
+
+        // Verificerer at virksomheden findes
+        verify(businessRepository).findById(1);
+
+        // Verificerer at virksomheden slettes
+        verify(businessRepository).delete(business);
+    }
+
+    // Tester fejl hvis virksomhed ikke findes
+    @Test
+    void deleteBusiness_shouldThrowException_whenBusinessDoesNotExist() {
+
+        // Mock findById til tom Optional
+        when(businessRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        // Forventer exception
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            businessService.deleteBusiness(1);
+        });
+
+        // Verificerer fejlbesked
+        assertEquals("Virksomheden blev ikke fundet", exception.getMessage());
+
+        // Verificerer at delete ikke kaldes
+        verify(businessRepository, never()).delete(any(Business.class));
+    }
 }
