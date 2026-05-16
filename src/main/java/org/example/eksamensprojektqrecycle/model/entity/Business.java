@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class Business {
 
     // Én virksomhed kan have mange afhentninger
     // Foreign key gemmes i Collection tabellen
+    @JsonManagedReference("business-collection")
     @OneToMany(mappedBy = "business")
     private List<Collection> collections = new ArrayList<>();
 

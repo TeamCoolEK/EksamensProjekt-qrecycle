@@ -1,5 +1,7 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +26,7 @@ public class TempStop {
 
     // Mange temp stops kan tilhøre én rute
     // Foreign key gemmes i TempStop tabellen
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;

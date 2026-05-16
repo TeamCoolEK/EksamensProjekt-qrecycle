@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 // Base URL til business endpoints
 @RequestMapping("/business")
-// Tillader requests fra frontend
-@CrossOrigin(origins = "*")
 public class BusinessController {
 
     // Service bruges til business logik

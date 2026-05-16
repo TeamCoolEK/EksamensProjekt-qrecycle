@@ -15,9 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/driver")
-@CrossOrigin(origins = "http://localhost:63342",
-        allowCredentials = "true"
-)
 public class DriverController {
 
     private final ExpenseService expenseService;

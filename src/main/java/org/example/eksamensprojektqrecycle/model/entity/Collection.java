@@ -1,5 +1,7 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,12 +40,14 @@ public class Collection {
 
     // Mange collections kan tilhøre én virksomhed
     // Foreign key gemmes i Collection tabellen
+    @JsonBackReference("business-collection")
     @ManyToOne
     @JoinColumn(name = "business_id")
     private Business business;
 
     // Mange collections kan tilhøre én rute
     // Foreign key gemmes i Collection tabellen
+    @JsonBackReference("route-collection")
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;

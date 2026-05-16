@@ -17,12 +17,6 @@ import java.util.List;
 @RestController
 // Base URL til admin endpoints
 @RequestMapping("/admin")
-
-// Tillader requests fra frontend
-@CrossOrigin(
-        origins = "http://localhost:63342",
-        allowCredentials = "true"
-)
 public class AdminController {
 
     private final UserService userService; // Service bruges til brugerlogik
