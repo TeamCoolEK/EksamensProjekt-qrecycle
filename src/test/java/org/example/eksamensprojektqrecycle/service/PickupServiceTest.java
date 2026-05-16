@@ -2,12 +2,12 @@ package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
-import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
 import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -17,13 +17,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for PickupService
- * QE-86, QE-87: Test status og poser opdatering
- */
+//Unit/enhedstests for PickupService//
+//QE-86, QE-87: Test status og antal pant poser opdatering//
+//QE-124, QE-125: Test annullering af afhentninger//
 class PickupServiceTest {
 
     // Mock repository (fake database)
@@ -41,9 +39,8 @@ class PickupServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    /**
-     * QE-86: Test at status ændres fra IKKE_KLAR til KLAR
-     */
+    //Tests for markér KLAR funktionalitet//
+    //QE-86: Test at status ændres fra IKKE_KLAR til KLAR//
     @Test
     @DisplayName("QE-86: Status skal ændres til KLAR når markReadyForPickup kaldes")
     void testMarkReadyForPickup_StatusChangesToKLAR() {
@@ -67,9 +64,7 @@ class PickupServiceTest {
         verify(collectionRepository, times(1)).save(any(Collection.class));
     }
 
-    /**
-     * QE-87: Test at antal poser gemmes korrekt
-     */
+    //QE-87: Test at antal poser gemmes korrekt//
     @Test
     @DisplayName("QE-87: businessBags skal gemmes korrekt")
     void testMarkReadyForPickup_BusinessBagsSavedCorrectly() {
@@ -92,9 +87,7 @@ class PickupServiceTest {
         verify(collectionRepository, times(1)).save(any(Collection.class));
     }
 
-    /**
-     * QE-75: Test validering - skal kaste fejl hvis businessBags < 1
-     */
+    //QE-75: Test validering - skal kaste fejl hvis businessBags < 1 //
     @Test
     @DisplayName("QE-75: Skal kaste exception hvis businessBags er 0")
     void testMarkReadyForPickup_ThrowsExceptionWhenBagsIsZero() {
@@ -110,9 +103,38 @@ class PickupServiceTest {
                 "Fejlbesked skal nævne mindst 1 pose");
     }
 
-    /**
-     * QE-77: Test at collection hentes korrekt
-     */
+    //QE-86 + QE-87: Test komplet flow med både status og poser//
+    @Test
+    @DisplayName("QE-86 + QE-87: Kompllet opdatering af status og poser")
+    void testMarkReadyForPickup_CompleteUpdate() {
+        //Arrange
+        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 3);
+
+        Collection existingCollection = new Collection();
+        existingCollection.setId(1);
+        existingCollection.setStatus(Status.IKKE_KLAR);
+        existingCollection.setBusinessBags(0);
+        existingCollection.setDate(LocalDate.now());
+
+        when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
+        when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
+
+        //Act//
+        Collection result = pickupService.markReadyForPickup(dto);
+
+        //Assert//
+        assertAll("Alle felter skal opdateres korrektt",
+                () -> assertEquals(Status.KLAR, result.getStatus(), "Status skal være KLAR"),
+                () -> assertEquals(3, result.getBusinessBags(), "businessBags skal være 3"),
+                () -> assertEquals(1, result.getId(), "ID skal forblive 1")
+        );
+
+        //Verificer at save blev kaldt præcis én gang//
+        verify(collectionRepository, times(1)).save(existingCollection);
+
+    }
+
+    //QE-77: Test at collection hentes korrekt//
     @Test
     @DisplayName("QE-77: getCollectionById skal returnere collection når den findes")
     void testGetCollectionById_ReturnsCollection() {
@@ -131,9 +153,7 @@ class PickupServiceTest {
         assertEquals(1, result.getId(), "ID skal være 1");
     }
 
-    /**
-     * QE-77: Test at exception kastes hvis collection ikke findes
-     */
+    // QE-77: Test at exception kastes hvis collection ikke findes//
     @Test
     @DisplayName("QE-77: Skal kaste exception hvis collection ikke findes")
     void testGetCollectionById_ThrowsExceptionWhenNotFound() {
@@ -149,35 +169,170 @@ class PickupServiceTest {
                 "Fejlbesked skal sige at afhentning ikke findes");
     }
 
-    /**
-     * QE-86 + QE-87: Test komplet flow med både status og poser
-     */
+    //Tests for Annullering funktionalitet//
+    //QE-124: Test annulering af gyldig afhentning (Status = KLAR)
+
     @Test
-    @DisplayName("QE-86 + QE-87: Komplet opdatering af status og poser")
-    void testMarkReadyForPickup_CompleteUpdate() {
-        // Arrange
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 3);
+    @DisplayName("QE-124: Annullering skal ændre status fra KLLAR til IKKE_KLAR")
+    void testCancelPickup_ShouldChangeStatusToIkkeKlar_WhenStatusIsKlar() {
+        //Arrange: Opret collection med status KLAR//
+        Collection collection = new Collection();
+        collection.setId(1);
+        collection.setStatus(Status.KLAR);
+        collection.setBusinessBags(5);
+        collection.setDate(LocalDate.now());
 
-        Collection existingCollection = new Collection();
-        existingCollection.setId(1);
-        existingCollection.setStatus(Status.IKKE_KLAR);
-        existingCollection.setBusinessBags(0);
-        existingCollection.setDate(LocalDate.now());
+        //Mock repository//
+        when(collectionRepository.findById(1)).thenReturn(Optional.of(collection));
+        when(collectionRepository.save(any(Collection.class))).thenReturn(collection);
 
-        when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
-        when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
+        //Act: Kald cancelPickup//
+        Collection result = pickupService.cancelPickup(1);
 
-        // Act
-        Collection result = pickupService.markReadyForPickup(dto);
+        //Assert: Verificer at status ændres til IKKE_KLAR//
+        assertEquals(Status.IKKE_KLAR, result.getStatus(),
+                "Status skal være IKKE_KLAR efter annulering");
 
-        // Assert
-        assertAll("Alle felter skal opdateres korrekt",
-                () -> assertEquals(Status.KLAR, result.getStatus(), "Status skal være KLAR"),
-                () -> assertEquals(3, result.getBusinessBags(), "businessBags skal være 3"),
-                () -> assertEquals(1, result.getId(), "ID skal forblive 1")
+        // Verificer at businessBags forbliver uændret//
+        assertEquals(5, result.getBusinessBags(),
+                "BusinessBags skal forblive uændret (5)");
+
+        //Verificer at save blev kaldt//
+        verify(collectionRepository, times(1)).save(collection);
+
+    }
+
+    //QE-125: Test at afhentninger med status IKKE_KLAR ikke kan annulleres//
+    @Test
+    @DisplayName("QE-125: Skal kaste exception når status er IKKE_KLAR")
+    void testCancelPickup_ShouldThrowException_WhenStatusIsIkkeKlar() {
+        //Arrange: Opret collection med status IKKE_KLAR//
+        Collection collection = new Collection();
+        collection.setId(2);
+        collection.setStatus(Status.IKKE_KLAR);
+        collection.setBusinessBags(3);
+
+        //Mock repository//
+        when(collectionRepository.findById(2)).thenReturn(Optional.of(collection));
+
+        //Act & Assert: Forvent Exception//
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->  {
+            pickupService.cancelPickup(2);
+        });
+
+        //Verificer fejlbesked//
+        assertTrue(exception.getMessage().contains("Kun"),
+                "Fejlbesked skal forklare at kun KLAR kan annulleres");
+        assertTrue(exception.getMessage().contains("IKKE_KLAR"),
+                "Fejlbesked skal vise nuværende status");
+
+        //Verificer at save IKKE blev kaldt//
+        verify(collectionRepository,never()).save(any());
+    }
+
+    //QE-125: Test at afhentninger med status AFHENTET ikke kan annulleres//
+    @Test
+    @DisplayName("QE-125: skal kaste exception når status er AFHENTET")
+    void testCancelPickup_ShouldThrowException_WhenStatusIsAfhentet() {
+        //Arrange: Opret collection med status AFHENTET//
+        Collection collection = new Collection();
+        collection.setId(3);
+        collection.setStatus(Status.AFHENTET);
+        collection.setBusinessBags(4);
+        collection.setDriverBags(4);
+
+        //Mock repository//
+        when(collectionRepository.findById(3)).thenReturn(Optional.of(collection));
+
+        //Act & Assert: Forvent exception//
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            pickupService.cancelPickup(3);
+        });
+
+        //Verificer fejlbesked//
+        assertTrue(exception.getMessage().contains("Kun"),
+                "Fejlbesked skal være tydelig");
+        assertTrue(exception.getMessage().contains("AFHENTET"),
+                "Fejlbesked skal vise nuværende status AFHENTET");
+
+        //Verificer at save IKKE blev kaldt//
+        verify(collectionRepository,never()).save(any());
+
+    }
+
+    @Test
+    @DisplayName("Annullering skal kaste exception hvis collecion ikke findes")
+    void testCancelPickup_ShouldThrowException_WhenCollectionNotFound() {
+        //Arrange: Mock repository til at returnere tom Optional//
+        when(collectionRepository.findById(999)).thenReturn(Optional.empty());
+
+        //Act & assert: forvent exception//
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            pickupService.cancelPickup(999);
+        });
+
+        //Verificr fejlbesked//
+        assertTrue(exception.getMessage().contains("ikke fundet"),
+                "Fejlbesked skal sige at afhentning ikke findes");
+
+
+        //Verificer at save ikke blev kaldt//
+        verify(collectionRepository, never()).save(any());
+    }
+
+    //Test at kun status æmndres ved annullering (ikke businessBags)
+    @Test
+    @DisplayName("Annullering skal kun ændre status, ikke andre felter")
+    void testCancelPickup_ShouldOnlyChangeStatus_NotOtherFields() {
+        //Arrange: Opret collection med flere felter//
+        Collection collection = new Collection();
+        collection.setId(4);
+        collection.setStatus(Status.KLAR);
+        collection.setBusinessBags(7);
+        collection.setDriverBags(0);
+        collection.setDate(LocalDate.of(2025,1,20));
+
+        when(collectionRepository.findById(4)).thenReturn(Optional.of(collection));
+        when(collectionRepository.save(any(Collection.class))).thenReturn(collection);
+
+        //Act: Annuller//
+        Collection result = pickupService.cancelPickup(4);
+
+        //Assert: Verificer at kun status ændres//
+        assertAll("Kun status skal ændres",
+                ()  -> assertEquals(Status.IKKE_KLAR, result.getStatus(),
+                        "Status skal ændres til IKKE_KLAR"),
+                ()-> assertEquals(7,result.getBusinessBags(),
+                        "BusinessBags skal forblive 7"),
+                ()-> assertEquals(0,result.getDriverBags(),
+                        "DriverBags skal forblive 0"),
+                ()-> assertEquals(LocalDate.of(2025,1,20),result.getDate(),
+                        "Dato skal forblive uændret")
         );
+    }
 
-        // Verificer at save blev kaldt præcis én gang
-        verify(collectionRepository, times(1)).save(existingCollection);
+    //Test at save kaldes præcis én gang ved annullering//
+    @Test
+    @DisplayName("Save skal kaldes præcis én gang ved annullering")
+    void testCancelPickup_ShouldCallSaveOnce() {
+        //Arrange//
+        Collection collection = new Collection();
+        collection.setId(5);
+        collection.setStatus(Status.KLAR);
+
+        when(collectionRepository.findById(5)).thenReturn(Optional.of(collection));
+        when(collectionRepository.save(any(Collection.class))).thenReturn(collection);
+
+        //Act//
+        pickupService.cancelPickup(5);
+
+        //Assert: Verificer at save kaldes præcis én gang//
+        ArgumentCaptor<Collection> captor = ArgumentCaptor.forClass(Collection.class);
+        verify(collectionRepository,times(1)).save(captor.capture());
+
+        //Verificer at den gamle collection har korrekt status//
+        Collection savedCollection = captor.getValue();
+        assertEquals(Status.IKKE_KLAR,savedCollection.getStatus(),
+                "Gemt collection skal have status IKKE_KLAR");
     }
 }
