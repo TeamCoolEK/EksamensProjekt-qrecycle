@@ -52,7 +52,7 @@ public class SecurityConfig {
                         //Bruger hasAuthority, da hasRole kræver ROLE_ prefix i starten af rollen som er gemt i DB
                         .requestMatchers("/admin/**").hasAuthority("ADMIN") //alle Admin endpoints kan kun tilgåes af admin rollen
                         .requestMatchers("/driver/**").hasAnyAuthority("DRIVER", "ADMIN") //-..-
-                        .requestMatchers("/business/**").hasAuthority("BUSINESS")
+                        .requestMatchers("/business/**").hasAnyAuthority("BUSINESS", "ADMIN")
                         .requestMatchers("/auth/me").hasAnyAuthority("ADMIN", "DRIVER", "BUSINESS")//til at authorizere rollen som logger ind
                         .requestMatchers("/login", "/register", "/", "/jwtkey", "/auth", "/doLogin").permitAll() //Endpoints som er tilladt uden login
                         .anyRequest().authenticated()

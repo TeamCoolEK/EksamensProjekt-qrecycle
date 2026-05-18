@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 // Base URL til business endpoints
 @RequestMapping("/business")
-// Tillader requests fra frontend
-@CrossOrigin(origins = "*")
 public class BusinessController {
 
     // Service bruges til business logik
@@ -68,6 +66,25 @@ public class BusinessController {
         } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
+    }
+
+    //QE-114: Virksomhed kan annullere afhentning//
+    @PostMapping("/afhentning/{id}/annuller")
+    public ResponseEntity<?> cancelPickup(@PathVariable int id) {
+
+        try {
+            // QE-115, 116, 117, 118, 119: Kald service til at annullere
+            Collection cancelledCollection = pickupService.cancelPickup(id);
+
+            // QE-120: Send success response tilbage til frontend
+            return ResponseEntity.ok(cancelledCollection);
+
+        } catch (RuntimeException e) {
+            // Håndter fejl (forkert status, ikke fundet, etc.)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }
     }
