@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.dto.BusinessResponseDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
@@ -68,14 +69,23 @@ public class BusinessService {
         return String.valueOf(number);
     }
 
-    public List<Business> getAllBusinesses() {
-        return businessRepository.findAll();
+    public List<BusinessResponseDTO> getAllBusinesses() {
+        return businessRepository.findAll()
+                .stream()
+                .map(business -> new BusinessResponseDTO(
+                        business.getId(),
+                        business.getCompanyName(),
+                        business.getContactPerson(),
+                        business.getPhoneNumber(),
+                        business.getAddress()
+                ))
+                .toList();
     }
 
-    public Business updateBusiness(int id, UpdateBusinessDTO dto) {
+    public BusinessResponseDTO updateBusiness(int id, UpdateBusinessDTO dto){
 
-        Business business = businessRepository.findById(id).orElseThrow(() ->
-                        new RuntimeException("Virksomhed blev ikke fundet"));
+        Business business = businessRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Virksomhed blev ikke fundet"));
 
         validateUpdateBusiness(dto);
 
@@ -84,7 +94,15 @@ public class BusinessService {
         business.setPhoneNumber(dto.getPhoneNumber());
         business.setAddress(dto.getAddress());
 
-        return businessRepository.save(business);
+        Business savedBusiness = businessRepository.save(business);
+
+        return new BusinessResponseDTO(
+                savedBusiness.getId(),
+                savedBusiness.getCompanyName(),
+                savedBusiness.getContactPerson(),
+                savedBusiness.getPhoneNumber(),
+                savedBusiness.getAddress()
+        );
     }
 
     private void validateUpdateBusiness(UpdateBusinessDTO dto) {
@@ -104,8 +122,32 @@ public class BusinessService {
     }
 
     public void deleteBusiness(int id) {
-        Business business = businessRepository.findById(id).orElseThrow(()-> new RuntimeException("Virksomheden blev ikke fundet"));
 
+        Business business = businessRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Virksomheden blev ikke fundet"));
+
+        AppUser appUser = business.getAppUser();
+
+        // Bryder relation begge veje
+        if (appUser != null) {
+            appUser.setBusiness(null);
+        }
+
+        business.setAppUser(null);
+
+        // Gem ændringerne først
+        if (appUser != null) {
+            userRepository.save(appUser);
+        }
+
+        businessRepository.save(business);
+
+        // Slet derefter business
         businessRepository.delete(business);
+
+        // Slet til sidst user
+        if (appUser != null) {
+            userRepository.delete(appUser);
+        }
     }
 }
