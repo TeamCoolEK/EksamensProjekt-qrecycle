@@ -32,7 +32,7 @@ public class BusinessController {
     }
 
 
-    @PostMapping("/afhentning/klar") //Håndterer POST requests//
+    @PostMapping("/collection/ready") //Håndterer POST requests//
     public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
         //<?> betyder "kan returnere hvilken som helst type"//
 
@@ -57,7 +57,7 @@ public class BusinessController {
     //Hent collection for at vise nuværende status//
     //GET /business/afhentning/{id}//
 
-    @GetMapping("/afhentning/{id}")
+    @GetMapping("/collection/{id}")
     public ResponseEntity<?> getCollection(@PathVariable int id) {
 
         try {
@@ -71,7 +71,7 @@ public class BusinessController {
     }
 
     //QE-114: Virksomhed kan annullere afhentning//
-    @PostMapping("/afhentning/{id}/annuller")
+    @PostMapping("/collection/{id}/cancel")
     public ResponseEntity<?> cancelPickup(@PathVariable int id) {
 
         try {
