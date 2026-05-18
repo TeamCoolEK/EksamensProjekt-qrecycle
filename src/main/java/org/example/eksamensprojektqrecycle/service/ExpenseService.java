@@ -4,6 +4,7 @@ import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Expense;
 import org.example.eksamensprojektqrecycle.repository.ExpenseRepository;
+import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,19 +13,31 @@ import java.time.LocalDate;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
+    private final UserRepository userRepository;
 
-    public ExpenseService(ExpenseRepository expenseRepository) {
+    public ExpenseService(
+            ExpenseRepository expenseRepository,
+            UserRepository userRepository
+    ) {
         this.expenseRepository = expenseRepository;
+        this.userRepository = userRepository;
     }
 
-    public void createExpense(ExpenseRequestDTO dto, AppUser user) {
+    public void createExpense(ExpenseRequestDTO dto, String username) {
+
         validateExpense(dto);
+
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Bruger blev ikke fundet"));
+
         Expense expense = new Expense();
+
         expense.setTitle(dto.getTitle());
         expense.setAmount(dto.getAmount());
         expense.setReceiptBase64(dto.getReceiptBase64());
         expense.setDate(LocalDate.now());
         expense.setUser(user);
+
         expenseRepository.save(expense);
     }
 
