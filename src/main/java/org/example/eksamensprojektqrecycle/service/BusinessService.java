@@ -8,6 +8,8 @@ import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +20,16 @@ public class BusinessService {
 
     private final BusinessRepository businessRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public BusinessService(
             BusinessRepository businessRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Business createBusiness(CreateBusinessDTO dto) {
@@ -35,7 +40,7 @@ public class BusinessService {
         // Opretter bruger
         AppUser user = new AppUser();
         user.setUsername(dto.getUsername());
-        user.setPassword(generatedPassword);
+        user.setPassword(passwordEncoder.encode(generatedPassword));
         user.setRole(Role.BUSINESS);
         AppUser savedUser = userRepository.save(user);
 

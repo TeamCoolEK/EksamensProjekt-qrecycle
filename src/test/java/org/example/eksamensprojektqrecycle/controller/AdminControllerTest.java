@@ -6,6 +6,7 @@ import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
+import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.example.eksamensprojektqrecycle.service.StatisticService;
 import org.example.eksamensprojektqrecycle.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,9 @@ class AdminControllerTest {
 
     @MockitoBean
     private StatisticService statisticService;
+
+    @MockitoBean
+    private PickupService pickupService;
 
     @Test
     void getAllBusinesses_shouldReturnAllBusinesses() throws Exception {

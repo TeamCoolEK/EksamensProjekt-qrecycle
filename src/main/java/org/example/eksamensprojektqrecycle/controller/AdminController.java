@@ -1,12 +1,10 @@
 package org.example.eksamensprojektqrecycle.controller;
 
-import org.example.eksamensprojektqrecycle.model.dto.BusinessResponseDTO;
-import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
-import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
-import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.*;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
+import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.example.eksamensprojektqrecycle.service.StatisticService;
 import org.example.eksamensprojektqrecycle.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,11 +21,13 @@ public class AdminController {
     private final UserService userService; // Service bruges til brugerlogik
     private final StatisticService statisticService;
     private final BusinessService businessService;
+    private final PickupService pickupService;
 
-    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService) { // Constructor injection
+    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService, PickupService pickupService) { // Constructor injection
         this.userService = userService;
         this.statisticService = statisticService;
         this.businessService = businessService;
+        this.pickupService = pickupService;
     }
 
     // GET endpoint til hentning af dashboard data
@@ -84,4 +84,8 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/collections")
+    public ResponseEntity<List<CollectionResponseDTO>> getAllCollections() {
+        return ResponseEntity.ok(pickupService.getAllCollectionsForAdmin());
+    }
 }

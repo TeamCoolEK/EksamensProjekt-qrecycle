@@ -2,6 +2,8 @@ package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
+
+import org.example.eksamensprojektqrecycle.model.dto.CollectionResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
@@ -114,4 +116,19 @@ public class PickupService {
         //QE-119: @PreUpdate fra Collection entity klassen opdaterer//
         return collectionRepository.save(collection);
     }
-}
+
+    public List<CollectionResponseDTO> getAllCollectionsForAdmin() {
+
+        return collectionRepository.findAll()
+                .stream()
+                .map(collection -> new CollectionResponseDTO(
+                        collection.getId(),
+                        collection.getBusiness().getCompanyName(),
+                        collection.getCreatedAt(),
+                        collection.getUpdatedAt(),
+                        collection.getBusinessBags(),
+                        collection.getDriverBags(),
+                        collection.getStatus()
+                ))
+                .toList();
+    }}
