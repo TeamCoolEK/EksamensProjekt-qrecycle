@@ -66,7 +66,7 @@ class BusinessControllerTest {
 
         when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class))).thenReturn(updated);
 
-        mockMvc.perform(post("/business/afhentning/klar")
+        mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -86,7 +86,7 @@ class BusinessControllerTest {
         when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class)))
                 .thenThrow(new RuntimeException("Antal poser skal være mindst 1."));
 
-        mockMvc.perform(post("/business/afhentning/klar")
+        mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -107,7 +107,7 @@ class BusinessControllerTest {
 
         when(pickupService.getCollectionById(5)).thenReturn(collection);
 
-        mockMvc.perform(get("/business/afhentning/5"))
+        mockMvc.perform(get("/business/collection/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
                 .andExpect(jsonPath("$.status").value("IKKE_KLAR"));
@@ -121,7 +121,7 @@ class BusinessControllerTest {
     void getCollection_notFound() throws Exception {
         when(pickupService.getCollectionById(999)).thenThrow(new RuntimeException("Afhentningen blev ikke fundet i systemet."));
 
-        mockMvc.perform(get("/business/afhentning/999"))
+        mockMvc.perform(get("/business/collection/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Afhentningen blev ikke fundet i systemet."));
     }
@@ -144,7 +144,7 @@ class BusinessControllerTest {
         when(pickupService.cancelPickup(1)).thenReturn(cancelledCollection);
 
         //Act & Assert: POST til annullerings-endpoint
-        mockMvc.perform(post("/business/afhentning/1/annuller")
+        mockMvc.perform(post("/business/collection/1/cancel")
                 .contentType((MediaType.APPLICATION_JSON)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -169,7 +169,7 @@ class BusinessControllerTest {
                         "Nuværende status er: IKKE_KLAR"));
 
         //Act & Assert: POST til endpoint
-        mockMvc.perform(post("/business/afhentning/2/annuller")
+        mockMvc.perform(post("/business/collection/2/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
@@ -191,7 +191,7 @@ class BusinessControllerTest {
                         "Afhentningen blev ikke fundet i systemet."));
 
         // act & assert
-        mockMvc.perform(post("/business/afhentning/999/annuller")
+        mockMvc.perform(post("/business/collection/999/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
@@ -214,7 +214,7 @@ class BusinessControllerTest {
                                 "Nuværende status: AFHENTET"));
 
         //Act & assert
-        mockMvc.perform(post("/business/afhentning/3/annuller")
+        mockMvc.perform(post("/business/collection/3/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
