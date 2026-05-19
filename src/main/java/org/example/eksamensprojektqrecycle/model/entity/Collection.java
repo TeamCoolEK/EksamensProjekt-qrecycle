@@ -36,10 +36,6 @@ public class Collection {
     // Antal poser registreret af chaufføren
     private int driverBags;
 
-    // Dato for afhentningen
-    private LocalDate date;
-
-
     //QE-119: Timestamp for hvornår en collection blev oprettet//
     @Column(name ="created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
