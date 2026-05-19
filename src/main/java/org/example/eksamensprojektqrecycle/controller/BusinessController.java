@@ -2,8 +2,12 @@ package org.example.eksamensprojektqrecycle.controller;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
+import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
+import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
+import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
@@ -17,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 // Base URL til business endpoints
 @RequestMapping("/business")
-// Tillader requests fra frontend
-@CrossOrigin(origins = "*")
 public class BusinessController {
 
     // Service bruges til business logik
@@ -33,8 +35,20 @@ public class BusinessController {
         this.pickupService = pickupService;
     }
 
+    //Henter collections ID
+    @GetMapping("/me/collection")
+    public ResponseEntity<?> getMyCollection(Authentication authentication) {
+        try {
+            Collection collection = pickupService.getCollectionForAuthenticatedUser(authentication);
+            return ResponseEntity.ok(collection);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
-    @PostMapping("/afhentning/klar") //Håndterer POST requests//
+
+
+    @PostMapping("/collection/ready") //Håndterer POST requests//
     public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
         //<?> betyder "kan returnere hvilken som helst type"//
 
@@ -59,7 +73,7 @@ public class BusinessController {
     //Hent collection for at vise nuværende status//
     //GET /business/afhentning/{id}//
 
-    @GetMapping("/afhentning/{id}")
+    @GetMapping("/collection/{id}")
     public ResponseEntity<?> getCollection(@PathVariable int id) {
 
         try {
@@ -73,7 +87,7 @@ public class BusinessController {
     }
 
     //QE-114: Virksomhed kan annullere afhentning//
-    @PostMapping("/afhentning/{id}/annuller")
+    @PostMapping("/collection/{id}/cancel")
     public ResponseEntity<?> cancelPickup(@PathVariable int id) {
 
         try {

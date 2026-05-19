@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+//BRUGES IKKE I SPRING FILTERET, JWTGeneratorService kalder den i controlleren ved login!!!
 //Lader spring håndtere dependency injection
 @Component
 public class JWTTokenGeneratorFilter extends OncePerRequestFilter {
@@ -47,10 +48,10 @@ public class JWTTokenGeneratorFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    //Sender kun JWT Token ved /doLogin
+    //Sender kun JWT Token ved /login
     @Override
-    public boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !request.getServletPath().equals("/doLogin");
+    public boolean shouldNotFilter(HttpServletRequest request) {
+        return !request.getServletPath().equals("/login");
     }
 
     //Metode til at populate authorities i doFilterInternal

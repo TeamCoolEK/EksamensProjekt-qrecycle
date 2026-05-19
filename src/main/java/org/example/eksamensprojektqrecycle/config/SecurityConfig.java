@@ -43,7 +43,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-                .addFilterAfter(jwtTokenGeneratorFilter, BasicAuthenticationFilter.class) //Generere Token
+                //.addFilterAfter(jwtTokenGeneratorFilter, BasicAuthenticationFilter.class) //Genereres ved /login af JWTService metoden!!!
                 .addFilterBefore(jwtTokenValidatorFilter, BasicAuthenticationFilter.class) //Validere Token
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable()) //CSRF disable for REST API's
@@ -52,8 +52,9 @@ public class SecurityConfig {
                         //Bruger hasAuthority, da hasRole kræver ROLE_ prefix i starten af rollen som er gemt i DB
                         .requestMatchers("/admin/**").hasAuthority("ADMIN") //alle Admin endpoints kan kun tilgåes af admin rollen
                         .requestMatchers("/driver/**").hasAnyAuthority("DRIVER", "ADMIN") //-..-
-                        .requestMatchers("/business/**").hasAuthority("BUSINESS") //-..-
-                        .requestMatchers("/login", "/register", "/", "/jwtkey", "/auth", "/doLogin").permitAll() //Endpoints som er tilladt uden login
+                        .requestMatchers("/business/**").hasAnyAuthority("BUSINESS", "ADMIN")
+                        .requestMatchers("/auth/me").hasAnyAuthority("ADMIN", "DRIVER", "BUSINESS")//til at authorizere rollen som logger ind
+                        .requestMatchers("/login", "/register", "/", "/jwtkey", "/auth", "/doLogin", "/error").permitAll() //Endpoints som er tilladt uden login
                         .anyRequest().authenticated()
                 )
                 //Fjerner JSESSIONID, så man skal logge ind per request (til JWT token)
@@ -76,6 +77,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); //Tillader disse endpoint metoder
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

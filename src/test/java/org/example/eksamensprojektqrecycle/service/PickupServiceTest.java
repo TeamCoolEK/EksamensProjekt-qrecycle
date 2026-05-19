@@ -114,7 +114,6 @@ class PickupServiceTest {
         existingCollection.setId(1);
         existingCollection.setStatus(Status.IKKE_KLAR);
         existingCollection.setBusinessBags(0);
-        existingCollection.setDate(LocalDate.now());
 
         when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
         when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
@@ -180,7 +179,6 @@ class PickupServiceTest {
         collection.setId(1);
         collection.setStatus(Status.KLAR);
         collection.setBusinessBags(5);
-        collection.setDate(LocalDate.now());
 
         //Mock repository//
         when(collectionRepository.findById(1)).thenReturn(Optional.of(collection));
@@ -290,7 +288,6 @@ class PickupServiceTest {
         collection.setStatus(Status.KLAR);
         collection.setBusinessBags(7);
         collection.setDriverBags(0);
-        collection.setDate(LocalDate.of(2025,1,20));
 
         when(collectionRepository.findById(4)).thenReturn(Optional.of(collection));
         when(collectionRepository.save(any(Collection.class))).thenReturn(collection);
@@ -305,9 +302,7 @@ class PickupServiceTest {
                 ()-> assertEquals(7,result.getBusinessBags(),
                         "BusinessBags skal forblive 7"),
                 ()-> assertEquals(0,result.getDriverBags(),
-                        "DriverBags skal forblive 0"),
-                ()-> assertEquals(LocalDate.of(2025,1,20),result.getDate(),
-                        "Dato skal forblive uændret")
+                        "DriverBags skal forblive 0")
         );
     }
 

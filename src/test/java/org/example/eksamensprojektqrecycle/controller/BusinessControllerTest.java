@@ -13,6 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
+import org.springframework.security.core.Authentication;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 import java.time.LocalDate;
 
@@ -20,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //Integration tests for BusinessController.
@@ -66,7 +70,7 @@ class BusinessControllerTest {
 
         when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class))).thenReturn(updated);
 
-        mockMvc.perform(post("/business/afhentning/klar")
+        mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -86,7 +90,7 @@ class BusinessControllerTest {
         when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class)))
                 .thenThrow(new RuntimeException("Antal poser skal være mindst 1."));
 
-        mockMvc.perform(post("/business/afhentning/klar")
+        mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
@@ -107,7 +111,7 @@ class BusinessControllerTest {
 
         when(pickupService.getCollectionById(5)).thenReturn(collection);
 
-        mockMvc.perform(get("/business/afhentning/5"))
+        mockMvc.perform(get("/business/collection/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
                 .andExpect(jsonPath("$.status").value("IKKE_KLAR"));
@@ -121,7 +125,7 @@ class BusinessControllerTest {
     void getCollection_notFound() throws Exception {
         when(pickupService.getCollectionById(999)).thenThrow(new RuntimeException("Afhentningen blev ikke fundet i systemet."));
 
-        mockMvc.perform(get("/business/afhentning/999"))
+        mockMvc.perform(get("/business/collection/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Afhentningen blev ikke fundet i systemet."));
     }
@@ -139,12 +143,11 @@ class BusinessControllerTest {
         cancelledCollection.setId(1);
         cancelledCollection.setStatus(Status.IKKE_KLAR);
         cancelledCollection.setBusinessBags(5);
-        cancelledCollection.setDate(LocalDate.now());
 
         when(pickupService.cancelPickup(1)).thenReturn(cancelledCollection);
 
         //Act & Assert: POST til annullerings-endpoint
-        mockMvc.perform(post("/business/afhentning/1/annuller")
+        mockMvc.perform(post("/business/collection/1/cancel")
                 .contentType((MediaType.APPLICATION_JSON)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -169,7 +172,7 @@ class BusinessControllerTest {
                         "Nuværende status er: IKKE_KLAR"));
 
         //Act & Assert: POST til endpoint
-        mockMvc.perform(post("/business/afhentning/2/annuller")
+        mockMvc.perform(post("/business/collection/2/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
@@ -191,7 +194,7 @@ class BusinessControllerTest {
                         "Afhentningen blev ikke fundet i systemet."));
 
         // act & assert
-        mockMvc.perform(post("/business/afhentning/999/annuller")
+        mockMvc.perform(post("/business/collection/999/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
@@ -214,13 +217,68 @@ class BusinessControllerTest {
                                 "Nuværende status: AFHENTET"));
 
         //Act & assert
-        mockMvc.perform(post("/business/afhentning/3/annuller")
+        mockMvc.perform(post("/business/collection/3/cancel")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(
                         org.hamcrest.Matchers.containsString("AFHENTET")));
 
         verify(pickupService,times(1)).cancelPickup(3);
+    }
+
+    //Test: getMyCollection success
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 200 og den authenticerede brugers Collection
+
+    @Test
+    void getMyCollection_success() throws Exception {
+        // Arrange: Mock Authentication til at returnere et username
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testUser");
+
+        // Mock collection som service returnerer
+        Collection collection = new Collection();
+        collection.setId(7);
+        collection.setStatus(Status.KLAR);
+        collection.setBusinessBags(3);
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenReturn(collection);
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.status").value("KLAR"))
+                .andExpect(jsonPath("$.businessBags").value(3));
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
+    }
+
+    //Test: getMyCollection notFound
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 404 og fejlbesked når ingen collection findes for bruger
+
+    @Test
+    void getMyCollection_notFound() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenThrow(new RuntimeException("Ingen afhentning fundet for virksomhed"));
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isNotFound());
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
     }
 }
 

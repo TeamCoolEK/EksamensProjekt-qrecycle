@@ -1,5 +1,8 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,11 +39,13 @@ public class AppUser {
 
     // Inverse side af OneToOne relation til Business
     // Foreign key gemmes i Business tabellen
+    @JsonIgnore
     @OneToOne(mappedBy = "appUser")
     private Business business;
 
     // Én bruger kan have mange expenses
     // Foreign key gemmes i Expense tabellen
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Expense> expenses = new ArrayList<>();
 

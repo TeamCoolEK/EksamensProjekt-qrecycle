@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.dto.BusinessResponseDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
@@ -156,7 +157,7 @@ class BusinessServiceTest {
                 .thenReturn(List.of(business1, business2));
 
         // Kalder service metode
-        List<Business> businesses = businessService.getAllBusinesses();
+        List<BusinessResponseDTO> businesses = businessService.getAllBusinesses();
 
         // Verificerer resultat
         assertEquals(2, businesses.size());
@@ -184,7 +185,7 @@ class BusinessServiceTest {
                 .thenReturn(List.of());
 
         // Kalder service metode
-        List<Business> businesses = businessService.getAllBusinesses();
+        List<BusinessResponseDTO> businesses = businessService.getAllBusinesses();
 
         // Verificerer resultat
         assertTrue(businesses.isEmpty());
@@ -221,7 +222,7 @@ class BusinessServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // Kalder service metode
-        Business updatedBusiness = businessService.updateBusiness(1, dto);
+        BusinessResponseDTO updatedBusiness = businessService.updateBusiness(1, dto);
 
         // Verificerer opdaterede oplysninger
         assertEquals("Franks Pizza Updated", updatedBusiness.getCompanyName());

@@ -8,6 +8,7 @@ import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/driver")
-@CrossOrigin(origins = "http://localhost:63342",
-        allowCredentials = "true"
-)
 public class DriverController {
 
     private final ExpenseService expenseService;
@@ -67,18 +65,14 @@ public class DriverController {
 
     @PostMapping("/expenses")
     public ResponseEntity<?> createExpense(
-            @RequestBody ExpenseRequestDTO dto, HttpSession session) {
-
-        AppUser loggedInUser =
-                (AppUser) session.getAttribute("user");
-
-        if (loggedInUser == null) {
-            return ResponseEntity
-                    .status(401)
-                    .body("Ikke logget ind");
+            @RequestBody ExpenseRequestDTO dto,
+            Authentication authentication
+    ) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Ikke logget ind");
         }
 
-        expenseService.createExpense(dto, loggedInUser);
+        expenseService.createExpense(dto, authentication.getName());
 
         return ResponseEntity.ok("Udgift gemt");
     }

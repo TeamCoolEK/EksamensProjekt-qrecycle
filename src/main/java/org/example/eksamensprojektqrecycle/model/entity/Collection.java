@@ -1,5 +1,7 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,10 +36,6 @@ public class Collection {
     // Antal poser registreret af chaufføren
     private int driverBags;
 
-    // Dato for afhentningen
-    private LocalDate date;
-
-
     //QE-119: Timestamp for hvornår en collection blev oprettet//
     @Column(name ="created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,12 +46,14 @@ public class Collection {
 
     // Mange collections kan tilhøre én virksomhed
     // Foreign key gemmes i Collection tabellen
+    @JsonBackReference("business-collection")
     @ManyToOne
     @JoinColumn(name = "business_id")
     private Business business;
 
     // Mange collections kan tilhøre én rute
     // Foreign key gemmes i Collection tabellen
+    @JsonBackReference("route-collection")
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;
@@ -63,11 +63,10 @@ public class Collection {
     }
 
     // Constructor til oprettelse af collection
-    public Collection(Status status, int businessBags, int driverBags, LocalDate date, Business business, Route route) {
+    public Collection(Status status, int businessBags, int driverBags, Business business, Route route) {
         this.status = status;
         this.businessBags = businessBags;
         this.driverBags = driverBags;
-        this.date = date;
         this.business = business;
         this.route = route;
     }

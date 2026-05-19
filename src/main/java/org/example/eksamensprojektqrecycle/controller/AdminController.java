@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.controller;
 
+import org.example.eksamensprojektqrecycle.model.dto.BusinessResponseDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
@@ -17,12 +18,6 @@ import java.util.List;
 @RestController
 // Base URL til admin endpoints
 @RequestMapping("/admin")
-
-// Tillader requests fra frontend
-@CrossOrigin(
-        origins = "http://localhost:63342",
-        allowCredentials = "true"
-)
 public class AdminController {
 
     private final UserService userService; // Service bruges til brugerlogik
@@ -51,10 +46,8 @@ public class AdminController {
     }
 
     @GetMapping("/businesses")
-    public ResponseEntity<List<Business>> getAllBusinesses() {
-        List<Business> businesses = businessService.getAllBusinesses();
-
-        return ResponseEntity.ok(businesses);
+    public ResponseEntity<List<BusinessResponseDTO>> getAllBusinesses() {
+        return ResponseEntity.ok(businessService.getAllBusinesses());
     }
 
     // POST endpoint til oprettelse af virksomhed
@@ -65,12 +58,14 @@ public class AdminController {
     }
 
     @PutMapping("/businesses/{id}")
-    public ResponseEntity<?> updateBusiness(@PathVariable Integer id, @RequestBody UpdateBusinessDTO dto) {
+    public ResponseEntity<?> updateBusiness(
+            @PathVariable Integer id,
+            @RequestBody UpdateBusinessDTO dto
+    ) {
         try {
-            Business updatedBusiness = businessService.updateBusiness(id, dto);
+            BusinessResponseDTO updatedBusiness = businessService.updateBusiness(id, dto);
             return ResponseEntity.ok(updatedBusiness);
         } catch (RuntimeException e) {
-
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

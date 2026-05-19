@@ -1,5 +1,7 @@
 package org.example.eksamensprojektqrecycle.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,7 @@ public class Expense {
 
     private LocalDate date;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "user_id")
     private AppUser user;
