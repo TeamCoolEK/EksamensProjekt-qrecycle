@@ -45,6 +45,7 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
                         AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
+                System.out.println("JWT parse failed: " + e.getMessage());
                 throw new BadCredentialsException("Invalid JWT Token");
             }
         }
