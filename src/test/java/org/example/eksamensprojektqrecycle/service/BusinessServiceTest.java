@@ -10,6 +10,7 @@ import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,12 @@ class BusinessServiceTest {
     // Mock repository til brugere
     private final UserRepository userRepository = mock(UserRepository.class);
 
+    // Mock passwordEncoder
+    private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+
     // Service som testes
     private final BusinessService businessService =
-            new BusinessService(businessRepository, userRepository);
+            new BusinessService(businessRepository, userRepository, passwordEncoder);
 
     // Tester at virksomhed og bruger gemmes korrekt
     @Test
@@ -49,6 +53,9 @@ class BusinessServiceTest {
         // Mock save på business repository
         when(businessRepository.save(any(Business.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn("encoded-password");
 
         // Kalder service metode
         Business createdBusiness = businessService.createBusiness(dto);
@@ -74,8 +81,11 @@ class BusinessServiceTest {
         assertEquals(Role.BUSINESS, savedUser.getRole());
 
         // Tjekker at password er 4 cifre
-        assertTrue(savedUser.getPassword().matches("\\d{4}"));
+        assertEquals("encoded-password", savedUser.getPassword());
 
+        ArgumentCaptor<String> passwordCaptor = ArgumentCaptor.forClass(String.class);
+        verify(passwordEncoder).encode(passwordCaptor.capture());
+        assertTrue(passwordCaptor.getValue().matches("\\d{4}"));
         // Verificerer virksomhedsdata
         assertEquals("Franks Pizza", savedBusiness.getCompanyName());
         assertEquals("Frank", savedBusiness.getContactPerson());
