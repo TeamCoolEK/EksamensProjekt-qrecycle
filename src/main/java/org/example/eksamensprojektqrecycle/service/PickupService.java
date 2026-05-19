@@ -1,10 +1,15 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.entity.Business;
 
 import org.example.eksamensprojektqrecycle.model.dto.CollectionResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
+import org.example.eksamensprojektqrecycle.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +23,26 @@ import java.util.Optional;
 public class PickupService {
 
     private final CollectionRepository collectionRepository;
+    private final UserRepository userRepository;
+    private final BusinessRepository businessRepository;
 
-    public PickupService(CollectionRepository collectionRepository) {
+    public PickupService(CollectionRepository collectionRepository, UserRepository userRepository, BusinessRepository businessRepository) {
         this.collectionRepository = collectionRepository;
+        this.userRepository = userRepository;
+        this.businessRepository = businessRepository;
+    }
+
+    public Collection getCollectionForAuthenticatedUser(Authentication authentication) {
+        String username = authentication.getName(); // ← principal er sat til username i JWT validator filter
+
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Bruger ikke fundet: " + username));
+
+        Business business = businessRepository.findByAppUser(user)
+                .orElseThrow(() -> new RuntimeException("Ingen virksomhed fundet for bruger: " + username));
+
+        return collectionRepository.findByBusiness(business)
+                .orElseThrow(() -> new RuntimeException("Ingen afhentning fundet for virksomhed"));
     }
 
     // Henter alle afhentninger med status KLAR

@@ -13,6 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
+import org.springframework.security.core.Authentication;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 import java.time.LocalDate;
 
@@ -20,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //Integration tests for BusinessController.
@@ -220,6 +224,61 @@ class BusinessControllerTest {
                         org.hamcrest.Matchers.containsString("AFHENTET")));
 
         verify(pickupService,times(1)).cancelPickup(3);
+    }
+
+    //Test: getMyCollection success
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 200 og den authenticerede brugers Collection
+
+    @Test
+    void getMyCollection_success() throws Exception {
+        // Arrange: Mock Authentication til at returnere et username
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testUser");
+
+        // Mock collection som service returnerer
+        Collection collection = new Collection();
+        collection.setId(7);
+        collection.setStatus(Status.KLAR);
+        collection.setBusinessBags(3);
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenReturn(collection);
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.status").value("KLAR"))
+                .andExpect(jsonPath("$.businessBags").value(3));
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
+    }
+
+    //Test: getMyCollection notFound
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 404 og fejlbesked når ingen collection findes for bruger
+
+    @Test
+    void getMyCollection_notFound() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenThrow(new RuntimeException("Ingen afhentning fundet for virksomhed"));
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isNotFound());
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
     }
 }
 
