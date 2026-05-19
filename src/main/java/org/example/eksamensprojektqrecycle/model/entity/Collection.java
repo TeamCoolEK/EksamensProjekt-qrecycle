@@ -67,11 +67,10 @@ public class Collection {
     }
 
     // Constructor til oprettelse af collection
-    public Collection(Status status, int businessBags, int driverBags, LocalDate date, Business business, Route route) {
+    public Collection(Status status, int businessBags, int driverBags, Business business, Route route) {
         this.status = status;
         this.businessBags = businessBags;
         this.driverBags = driverBags;
-        this.date = date;
         this.business = business;
         this.route = route;
     }
