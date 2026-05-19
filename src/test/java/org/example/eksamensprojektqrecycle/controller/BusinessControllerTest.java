@@ -139,7 +139,6 @@ class BusinessControllerTest {
         cancelledCollection.setId(1);
         cancelledCollection.setStatus(Status.IKKE_KLAR);
         cancelledCollection.setBusinessBags(5);
-        cancelledCollection.setDate(LocalDate.now());
 
         when(pickupService.cancelPickup(1)).thenReturn(cancelledCollection);
 
