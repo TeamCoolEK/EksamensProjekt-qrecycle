@@ -70,9 +70,9 @@ public class DataLoader implements CommandLineRunner {
         tempStopRepository.save(new TempStop("Vesterbrogade 3, 1620 København V", route2));
 
         // Afhentninger
-        collectionRepository.save(new Collection(Status.AFHENTET, 5, 5, LocalDate.now().minusDays(3), biz1, route1));
-        collectionRepository.save(new Collection(Status.KLAR,     5, 0, LocalDate.now(),              biz2, route1));
-        collectionRepository.save(new Collection(Status.IKKE_KLAR, 0, 0, LocalDate.now().plusDays(2), biz3, route2));
+        collectionRepository.save(new Collection(Status.AFHENTET, 5, 5, biz1, route1));
+        collectionRepository.save(new Collection(Status.KLAR,     5, 0, biz2, route1));
+        collectionRepository.save(new Collection(Status.IKKE_KLAR, 0, 0, biz3, route2));
 
         // Udgifter
         expenseRepository.save(new Expense(124.50, "Diesel", null, null, LocalDate.now().minusDays(1), driver1));
