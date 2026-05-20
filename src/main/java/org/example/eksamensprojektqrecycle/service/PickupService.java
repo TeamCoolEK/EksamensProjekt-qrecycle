@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
@@ -28,6 +29,31 @@ public class PickupService {
         this.collectionRepository = collectionRepository;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
+    }
+
+    //create collection til at lave ny collection, hvis sidste collection er afhentet
+    public Collection createCollection(CreateCollectionDTO createCollectionDTO) {
+        Business business = businessRepository.findById(createCollectionDTO.getBusinessId())
+                .orElseThrow(() -> new RuntimeException("Virksomhed ikke fundet: " + createCollectionDTO.getBusinessId()));
+
+        // blokerer hvis den nuværende collection ikke er afhentet (IKKE_KLAR or KLAR)
+        Optional<Collection> existingCollection = collectionRepository.findByBusiness(business);
+        if (existingCollection.isPresent() && existingCollection.get().getStatus() != Status.AFHENTET) {
+            throw new RuntimeException(
+                    "En aktiv samling eksisterer allerede. Annullér den eksisterende før du opretter en ny."
+            );
+        }
+
+        // Create new collection
+        Collection collection = new Collection(
+                Status.IKKE_KLAR,
+                createCollectionDTO.getBusinessBags(),
+                0,
+                business,
+                null
+        );
+
+        return collectionRepository.save(collection);
     }
 
     public Collection getCollectionForAuthenticatedUser(Authentication authentication) {
@@ -75,14 +101,32 @@ public class PickupService {
         return collectionOptional.get();
     }
 
-    public Collection markReadyForPickup(UpdateCollectionStatusDTO dto) {
+    //bruges til at markere collection klar. Hvis collection er klar eller ikke klar opdateres, hvis afhentet laves en ny
+    public Collection markReadyForPickup(CreateCollectionDTO dto, Authentication authentication) {
         //QE-75: Validér at antal poser er mindst 1//
         if (dto.getBusinessBags() < 1) {
             throw new RuntimeException("Antal poser skal være mindst 1."); //fejlen fanges i controller og sendes til frontend//
         }
 
-        //QE-77: Hent collection fra database//
-        Collection collection = getCollectionById(dto.getCollectionId());
+        //finder user fra auth
+        String username = authentication.getName();
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Bruger ikke fundet: " + username));
+
+        //finder business ud fra ID
+        Business business = businessRepository.findByAppUser(user)
+                .orElseThrow(() -> new RuntimeException("Virksomhed ikke fundet, Kontakt ADMIN"));
+
+        //henter collection fra db ud fra business id
+        Optional<Collection> existingCollection = collectionRepository.findByBusiness(business);
+
+        if (existingCollection.isEmpty() || existingCollection.get().getStatus() == Status.AFHENTET) {
+            Collection newCollection = new Collection(Status.KLAR, dto.getBusinessBags(), 0, business, null);
+            return collectionRepository.save(newCollection);
+        }
+
+        //QE-77: Hent collection fra database//Bruger eksisterende collection
+        Collection collection = existingCollection.get();
 
         //QE-78: Opdater status til "klar"//
         collection.setStatus(Status.KLAR);
