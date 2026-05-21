@@ -5,6 +5,8 @@ import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.service.BusinessService;
+import org.example.eksamensprojektqrecycle.service.DriverLocationService;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ class DriverControllerTest {
 
     @MockitoBean
     private PickupService pickupService;
+
+    @MockitoBean
+    private DriverLocationService driverLocationService;
 
     @Test
     void createExpense_shouldReturnOk_whenUserIsLoggedIn() throws Exception {
