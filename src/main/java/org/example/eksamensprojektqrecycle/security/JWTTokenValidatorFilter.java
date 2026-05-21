@@ -53,8 +53,24 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
     }
 
     //Validator skipper på doLogin post
+//    @Override
+//    public boolean shouldNotFilter(HttpServletRequest request) {
+//        return request.getServletPath().equals("/login");
+//    }
+
     @Override
     public boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().equals("/login");
+
+        String path = request.getServletPath();
+
+        return path.equals("/login")
+                || path.equals("/api/login")
+                || path.equals("/register")
+                || path.equals("/api/register")
+                || path.equals("/error")
+                || path.equals("/api/error")
+                || path.equals("/jwtkey")
+                || path.equals("/api/jwtkey")
+                || request.getMethod().equals("OPTIONS");
     }
 }
