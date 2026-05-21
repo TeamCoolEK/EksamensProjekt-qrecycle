@@ -1,6 +1,7 @@
 package org.example.eksamensprojektqrecycle.controller;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
@@ -47,14 +48,15 @@ public class BusinessController {
     }
 
 
-
+    //opdateret collection ready, så der laves en ny collection hvis collection er afhentet af driver.
+    //og opdatere collection hvis collection er klar eller ikke klar.
     @PostMapping("/collection/ready") //Håndterer POST requests//
-    public ResponseEntity<?> markCollectionReady(@RequestBody UpdateCollectionStatusDTO dto) {  //Spring parser JSON fra request til DTO objekt.//
+    public ResponseEntity<?> markCollectionReady(@RequestBody CreateCollectionDTO dto, Authentication authentication) {  //Spring parser JSON fra request til DTO objekt.//
         //<?> betyder "kan returnere hvilken som helst type"//
 
         try {
-            //Kald service til at opdatere collection//
-            Collection updatedCollection = pickupService.markReadyForPickup(dto);
+            //Kald service til at opdatere eller oprette collection//
+            Collection updatedCollection = pickupService.markReadyForPickup(dto, authentication);
 
             //QE-82: Send bekræftelse tilbage til frontend//
             return ResponseEntity.ok(updatedCollection);
