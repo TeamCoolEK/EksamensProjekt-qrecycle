@@ -2,12 +2,15 @@ package org.example.eksamensprojektqrecycle.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.example.eksamensprojektqrecycle.model.dto.CollectionRequestDTO;
+import org.example.eksamensprojektqrecycle.model.dto.DriverLocationDTO;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
+import org.example.eksamensprojektqrecycle.service.DriverLocationService;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +23,12 @@ public class DriverController {
 
     private final ExpenseService expenseService;
     private final PickupService pickupService;
+    private final DriverLocationService driverLocationService;
 
-    public DriverController(ExpenseService expenseService, PickupService pickupService) {
+    public DriverController(ExpenseService expenseService, PickupService pickupService, DriverLocationService driverLocationService) {
         this.expenseService = expenseService;
         this.pickupService = pickupService;
+        this.driverLocationService = driverLocationService;
     }
 
     // Henter aktive afhentninger
@@ -77,10 +82,33 @@ public class DriverController {
         return ResponseEntity.ok("Udgift gemt");
     }
 
+    // Opdaterer chaufføren position i hukommelsen (ConcurrentHashMap)
+    @PostMapping("/location")
+    // SecurityConfig tillader kun DRIVER og ADMIN på /driver/**
+    // Ingen if-sætninger nødvendige af ovenstående grund.
+    public ResponseEntity<?> updateLocation(@RequestBody DriverLocationDTO dto) {
+        driverLocationService.updateLocation(dto);
+        return ResponseEntity.ok("Position opdateret");
+    }
+    // Henter chaufførens seneste position fra hukommelsen
+    @GetMapping("/location/{driverId}")
+    public ResponseEntity<?> getLocation(@PathVariable int driverId) {
+        DriverLocationDTO location = driverLocationService.getLocation(driverId);
+        //Hvis positionen findes returneres hele DriverLocationDTO som JSON
+        //Hvis ikke returneres 404 med fejlbesked
+        if (location == null) {
+            return ResponseEntity.status(404).body("Ingen aktiv position fundet — genstart venligst sporing");
+        }
+        return ResponseEntity.ok(location);
+    }
+
 
     // Fanger RuntimeException og returnerer 500 med fejlbesked
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.status(500).body(e.getMessage());
     }
+
+
+
 }
