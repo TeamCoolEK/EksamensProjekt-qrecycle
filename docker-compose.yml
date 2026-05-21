@@ -1,0 +1,29 @@
+services:
+  nginx: #starter nginx container fra frontend image
+    image: ghcr.io/teamcoolek/qrecycle-frontend:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    environment:
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    depends_on:
+      - springboot
+
+  springboot: #starter springboot fra backend image
+    image: ghcr.io/teamcoolek/qrecycle-backend:latest
+    environment: #enviorment variables for db connection
+      SPRING_DATASOURCE_URL: ${PROD_URL}
+      SPRING_DATASOURCE_USERNAME: ${PROD_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${PROD_PASSWORD}
+    expose:
+      - "8080"
+
+  certbot: #certifikere https
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot --non-interactive -w /var/www/certbot -d teamcool.swag.dk -d www.teamcool.swag.dk --email anoepbrsundahl@gmail.com --agree-tos --no-eff-email
