@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 
@@ -41,7 +42,12 @@ public class PickupService {
         Business business = businessRepository.findByAppUser(user)
                 .orElseThrow(() -> new RuntimeException("Ingen virksomhed fundet for bruger: " + username));
 
-        return collectionRepository.findByBusiness(business)
+        //liste af aktive statuser som skal hente en collection frem
+        List<Status> activeStatus = List.of(Status.KLAR, Status.IKKE_KLAR);
+
+        //retunerer en collection med status klar/ikke_klar
+        return collectionRepository.findByBusinessAndStatusIn(business, activeStatus)
+                .or(() -> collectionRepository.findTopByBusinessAndStatusOrderByUpdatedAtDesc(business, Status.AFHENTET))
                 .orElseThrow(() -> new RuntimeException("Ingen afhentning fundet for virksomhed"));
     }
 
@@ -77,14 +83,32 @@ public class PickupService {
         return collectionOptional.get();
     }
 
-    public Collection markReadyForPickup(UpdateCollectionStatusDTO dto) {
+    //bruges til at markere collection klar. Hvis collection er klar eller ikke klar opdateres, hvis afhentet laves en ny
+    public Collection markReadyForPickup(CreateCollectionDTO dto, Authentication authentication) {
         //QE-75: Validér at antal poser er mindst 1//
         if (dto.getBusinessBags() < 1) {
             throw new RuntimeException("Antal poser skal være mindst 1."); //fejlen fanges i controller og sendes til frontend//
         }
 
-        //QE-77: Hent collection fra database//
-        Collection collection = getCollectionById(dto.getCollectionId());
+        //finder user fra auth
+        String username = authentication.getName();
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Bruger ikke fundet: " + username));
+
+        //finder business ud fra ID
+        Business business = businessRepository.findByAppUser(user)
+                .orElseThrow(() -> new RuntimeException("Virksomhed ikke fundet, Kontakt ADMIN"));
+
+        //henter collection fra db ud fra business id
+        Optional<Collection> existingCollection = collectionRepository.findByBusinessAndStatusNot(business, Status.AFHENTET);
+
+        if (existingCollection.isEmpty() || existingCollection.get().getStatus() == Status.AFHENTET) {
+            Collection newCollection = new Collection(Status.KLAR, dto.getBusinessBags(), 0, business, null);
+            return collectionRepository.save(newCollection);
+        }
+
+        //QE-77: Hent collection fra database//Bruger eksisterende collection
+        Collection collection = existingCollection.get();
 
         //QE-78: Opdater status til "klar"//
         collection.setStatus(Status.KLAR);

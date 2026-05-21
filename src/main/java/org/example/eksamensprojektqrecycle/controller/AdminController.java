@@ -3,10 +3,9 @@ package org.example.eksamensprojektqrecycle.controller;
 import org.example.eksamensprojektqrecycle.model.dto.*;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.service.BusinessService;
-import org.example.eksamensprojektqrecycle.service.PickupService;
-import org.example.eksamensprojektqrecycle.service.StatisticService;
-import org.example.eksamensprojektqrecycle.service.UserService;
+import org.example.eksamensprojektqrecycle.model.entity.Expense;
+import org.example.eksamensprojektqrecycle.service.*;
+import org.example.eksamensprojektqrecycle.model.dto.AdminCollectionStatisticDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +21,14 @@ public class AdminController {
     private final StatisticService statisticService;
     private final BusinessService businessService;
     private final PickupService pickupService;
+    private final ExpenseService expenseService;
 
-    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService, PickupService pickupService) { // Constructor injection
+    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService, PickupService pickupService, ExpenseService expenseService) { // Constructor injection
         this.userService = userService;
         this.statisticService = statisticService;
         this.businessService = businessService;
         this.pickupService = pickupService;
+        this.expenseService = expenseService;
     }
 
     // GET endpoint til hentning af dashboard data
@@ -87,5 +88,16 @@ public class AdminController {
     @GetMapping("/collections")
     public ResponseEntity<List<CollectionResponseDTO>> getAllCollections() {
         return ResponseEntity.ok(pickupService.getAllCollectionsForAdmin());
+    }
+
+    @GetMapping("/statistics/collections")
+    public ResponseEntity<List<AdminCollectionStatisticDTO>> getCollectionStatistics(){
+        return ResponseEntity.ok(statisticService.getCollectionStatisticsForAdmin());
+    }
+
+    //henter alle expenses
+    @GetMapping("/business/expenses")
+    public ResponseEntity<List<GetExpensesDTO>> getAllExpenses() {
+        return ResponseEntity.ok(expenseService.getAllExpenses());
     }
 }

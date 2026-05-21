@@ -22,5 +22,14 @@ public interface CollectionRepository extends JpaRepository<Collection, Integer>
     Integer Status(Status status);
 
     Optional<Collection> findByBusiness(Business business);
+
+    //bruges til at finde collection at business AND status = klar, ikke_klar
+    Optional<Collection> findByBusinessAndStatusIn(Business business, List<Status> status);
+
+    //bruges til at finde collection at business AND status = afhentet
+    Optional<Collection> findByBusinessAndStatusNot(Business business, Status status);
+
+    //bruges til at finde seneste afhentet collection, til visning i business dashboard
+    Optional<Collection> findTopByBusinessAndStatusOrderByUpdatedAtDesc(Business business, Status status);
 }
 
