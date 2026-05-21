@@ -1,10 +1,13 @@
 package org.example.eksamensprojektqrecycle.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.eksamensprojektqrecycle.model.dto.DriverLocationDTO;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.service.BusinessService;
+import org.example.eksamensprojektqrecycle.service.DriverLocationService;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,9 @@ class DriverControllerTest {
 
     @MockitoBean
     private PickupService pickupService;
+
+    @MockitoBean
+    private DriverLocationService driverLocationService;
 
     @Test
     void createExpense_shouldReturnOk_whenUserIsLoggedIn() throws Exception {
@@ -160,4 +166,43 @@ class DriverControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
+
+    // Tester at POST /driver/location gemmer position og returnerer 200
+    @Test
+    void updateLocation_gyldigRequest_returnerOk() throws Exception {
+
+        DriverLocationDTO dto = new DriverLocationDTO();
+        dto.setLatitude(55.6761);
+        dto.setLongitude(12.5683);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("driver1", null, List.of());
+
+        mockMvc.perform(post("/driver/location")
+                        .principal(authentication)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+
+                .andExpect(status().isOk())
+                .andExpect(content().string("Position opdateret"));
+
+        verify(driverLocationService).updateLocation(eq("driver1"), any(DriverLocationDTO.class));
+    }
+
+    // Tester at GET /driver/location returnerer 404 når ingen position findes i hukommelsen
+    @Test
+    void getLocation_ingenPosition_returner404() throws Exception {
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("driver1", null, List.of());
+
+        when(driverLocationService.getLocation("driver1")).thenReturn(null);
+
+        mockMvc.perform(get("/driver/location")
+                        .principal(authentication))
+
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Ingen aktiv position fundet — genstart venligst sporing"));
+    }
 }
+
