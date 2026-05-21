@@ -7,6 +7,7 @@ import org.example.eksamensprojektqrecycle.service.BusinessService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.example.eksamensprojektqrecycle.service.StatisticService;
 import org.example.eksamensprojektqrecycle.service.UserService;
+import org.example.eksamensprojektqrecycle.model.dto.AdminCollectionStatisticDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -87,5 +88,10 @@ public class AdminController {
     @GetMapping("/collections")
     public ResponseEntity<List<CollectionResponseDTO>> getAllCollections() {
         return ResponseEntity.ok(pickupService.getAllCollectionsForAdmin());
+    }
+
+    @GetMapping("/statistics/collections")
+    public ResponseEntity<List<AdminCollectionStatisticDTO>> getCollectionStatistics(){
+        return ResponseEntity.ok(statisticService.getCollectionStatisticsForAdmin());
     }
 }
