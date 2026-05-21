@@ -8,17 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class DriverLocationService {
 
-    private final ConcurrentHashMap<Integer, DriverLocationDTO> locations = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, DriverLocationDTO> locations = new ConcurrentHashMap<>();
 
-    public void updateLocation(DriverLocationDTO dto) {
-        locations.put(dto.getDriverId(), dto);
+    public void updateLocation(String username, DriverLocationDTO dto) {
+        locations.put(username, dto);
     }
 
-    public DriverLocationDTO getLocation(int driverId) {
-        return locations.get(driverId);
+    public DriverLocationDTO getLocation(String username) {
+        return locations.get(username);
     }
 
-    public void removeLocation(int driverId) {
-        locations.remove(driverId);
+    public void removeLocation(String username) {
+        locations.remove(username);
     }
 }

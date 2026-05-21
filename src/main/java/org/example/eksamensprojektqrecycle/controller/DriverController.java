@@ -84,21 +84,30 @@ public class DriverController {
 
     // Opdaterer chaufføren position i hukommelsen (ConcurrentHashMap)
     @PostMapping("/location")
-    // SecurityConfig tillader kun DRIVER og ADMIN på /driver/**
-    // Ingen if-sætninger nødvendige af ovenstående grund.
-    public ResponseEntity<?> updateLocation(@RequestBody DriverLocationDTO dto) {
-        driverLocationService.updateLocation(dto);
+    public ResponseEntity<?> updateLocation(
+            @RequestBody DriverLocationDTO dto,
+            Authentication authentication) {
+
+        // SecurityConfig tillader kun DRIVER og ADMIN på /driver/**
+        // Ingen if-sætninger nødvendige af ovenstående grund.
+        String username = authentication.getName();
+        driverLocationService.updateLocation(username, dto);
         return ResponseEntity.ok("Position opdateret");
     }
+
+
     // Henter chaufførens seneste position fra hukommelsen
-    @GetMapping("/location/{driverId}")
-    public ResponseEntity<?> getLocation(@PathVariable int driverId) {
-        DriverLocationDTO location = driverLocationService.getLocation(driverId);
+    @GetMapping("/location")
+    public ResponseEntity<?> getLocation(Authentication authentication) {
+        String username = authentication.getName();
+        DriverLocationDTO location = driverLocationService.getLocation(username);
+
         //Hvis positionen findes returneres hele DriverLocationDTO som JSON
         //Hvis ikke returneres 404 med fejlbesked
         if (location == null) {
             return ResponseEntity.status(404).body("Ingen aktiv position fundet — genstart venligst sporing");
         }
+
         return ResponseEntity.ok(location);
     }
 
