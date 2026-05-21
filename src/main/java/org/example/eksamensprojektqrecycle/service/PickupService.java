@@ -31,31 +31,6 @@ public class PickupService {
         this.businessRepository = businessRepository;
     }
 
-    //create collection til at lave ny collection, hvis sidste collection er afhentet
-    public Collection createCollection(CreateCollectionDTO createCollectionDTO) {
-        Business business = businessRepository.findById(createCollectionDTO.getBusinessId())
-                .orElseThrow(() -> new RuntimeException("Virksomhed ikke fundet: " + createCollectionDTO.getBusinessId()));
-
-        // blokerer hvis den nuværende collection ikke er afhentet (IKKE_KLAR or KLAR)
-        Optional<Collection> existingCollection = collectionRepository.findByBusiness(business);
-        if (existingCollection.isPresent() && existingCollection.get().getStatus() != Status.AFHENTET) {
-            throw new RuntimeException(
-                    "En aktiv samling eksisterer allerede. Annullér den eksisterende før du opretter en ny."
-            );
-        }
-
-        // Create new collection
-        Collection collection = new Collection(
-                Status.IKKE_KLAR,
-                createCollectionDTO.getBusinessBags(),
-                0,
-                business,
-                null
-        );
-
-        return collectionRepository.save(collection);
-    }
-
     public Collection getCollectionForAuthenticatedUser(Authentication authentication) {
         String username = authentication.getName(); // ← principal er sat til username i JWT validator filter
 
@@ -65,7 +40,12 @@ public class PickupService {
         Business business = businessRepository.findByAppUser(user)
                 .orElseThrow(() -> new RuntimeException("Ingen virksomhed fundet for bruger: " + username));
 
-        return collectionRepository.findByBusiness(business)
+        //liste af aktive statuser som skal hente en collection frem
+        List<Status> activeStatus = List.of(Status.KLAR, Status.IKKE_KLAR);
+
+        //retunerer en collection med status klar/ikke_klar
+        return collectionRepository.findByBusinessAndStatusIn(business, activeStatus)
+                .or(() -> collectionRepository.findTopByBusinessAndStatusOrderByUpdatedAtDesc(business, Status.AFHENTET))
                 .orElseThrow(() -> new RuntimeException("Ingen afhentning fundet for virksomhed"));
     }
 
@@ -118,7 +98,7 @@ public class PickupService {
                 .orElseThrow(() -> new RuntimeException("Virksomhed ikke fundet, Kontakt ADMIN"));
 
         //henter collection fra db ud fra business id
-        Optional<Collection> existingCollection = collectionRepository.findByBusiness(business);
+        Optional<Collection> existingCollection = collectionRepository.findByBusinessAndStatusNot(business, Status.AFHENTET);
 
         if (existingCollection.isEmpty() || existingCollection.get().getStatus() == Status.AFHENTET) {
             Collection newCollection = new Collection(Status.KLAR, dto.getBusinessBags(), 0, business, null);

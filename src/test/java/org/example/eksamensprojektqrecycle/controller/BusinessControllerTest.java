@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.controller;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,7 +63,7 @@ class BusinessControllerTest {
     @Test
     void markCollectionReady_success() throws Exception {
         // Forbered DTO som request body
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(3, 2); // collectionId=3, businessBags=2
+        CreateCollectionDTO dto = new CreateCollectionDTO(2); // collectionId=3, businessBags=2
 
         // Mock return fra service-laget
         Collection updated = new Collection();
@@ -68,7 +71,8 @@ class BusinessControllerTest {
         updated.setStatus(Status.KLAR);
         updated.setBusinessBags(2);
 
-        when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class))).thenReturn(updated);
+        when(pickupService.markReadyForPickup(any(CreateCollectionDTO.class), any()))
+                .thenReturn(updated);
 
         mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,9 +89,9 @@ class BusinessControllerTest {
 
     @Test
     void markCollectionReady_badRequest() throws Exception {
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(3, 0); // ugyldigt scenarie
+        CreateCollectionDTO dto = new CreateCollectionDTO(0); // ugyldigt scenarie
 
-        when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class)))
+        when(pickupService.markReadyForPickup(any(CreateCollectionDTO.class), any()))
                 .thenThrow(new RuntimeException("Antal poser skal være mindst 1."));
 
         mockMvc.perform(post("/business/collection/ready")

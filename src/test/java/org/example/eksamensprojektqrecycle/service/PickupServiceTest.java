@@ -1,9 +1,15 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
+import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
+import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
+import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
+import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.OngoingStubbing;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -27,6 +35,12 @@ class PickupServiceTest {
     // Mock repository (fake database)
     @Mock
     private CollectionRepository collectionRepository;
+
+    @Mock  // ← add this
+    private UserRepository userRepository;
+
+    @Mock  // ← add this
+    private BusinessRepository businessRepository;
 
     // Service vi tester (får injected mock repository)
     @InjectMocks
@@ -45,19 +59,36 @@ class PickupServiceTest {
     @DisplayName("QE-86: Status skal ændres til KLAR når markReadyForPickup kaldes")
     void testMarkReadyForPickup_StatusChangesToKLAR() {
         // Arrange (forbered test data)
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 5);
+        CreateCollectionDTO dto = new CreateCollectionDTO(5);
 
         Collection existingCollection = new Collection();
         existingCollection.setId(1);
         existingCollection.setStatus(Status.IKKE_KLAR); // Start status
         existingCollection.setBusinessBags(0);
 
+        // Mock Authentication
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        // Stub user lookup
+        AppUser mockUser = new AppUser();
+        mockUser.setUsername("testuser");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+        // Stub business lookup
+        var mockBusiness = new Business();
+        when(businessRepository.findByAppUser(mockUser)).thenReturn(Optional.of(mockBusiness));
+
+        // Stub the collection lookup used inside markReadyForPickup
+        OngoingStubbing<Optional<Collection>> optionalOngoingStubbing = when(collectionRepository.findByBusinessAndStatusNot(eq(mockBusiness), eq(Status.AFHENTET)))
+                .thenReturn(Optional.of(existingCollection));
+
         // Mock repository til at returnere collection
         when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
         when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
 
         // Act (kør metoden vi tester)
-        Collection result = pickupService.markReadyForPickup(dto);
+        Collection result = pickupService.markReadyForPickup(dto, auth);
 
         // Assert (verificer resultat)
         assertEquals(Status.KLAR, result.getStatus(), "Status skal være KLAR");
@@ -69,18 +100,36 @@ class PickupServiceTest {
     @DisplayName("QE-87: businessBags skal gemmes korrekt")
     void testMarkReadyForPickup_BusinessBagsSavedCorrectly() {
         // Arrange
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 5);
+        CreateCollectionDTO dto = new CreateCollectionDTO(5);
 
         Collection existingCollection = new Collection();
         existingCollection.setId(1);
         existingCollection.setStatus(Status.IKKE_KLAR);
         existingCollection.setBusinessBags(0);
 
+        // Mock Authentication
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        // Stub user lookup
+        AppUser mockUser = new AppUser();
+        mockUser.setUsername("testuser");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+        // Stub business lookup
+        var mockBusiness = new Business();
+        when(businessRepository.findByAppUser(mockUser)).thenReturn(Optional.of(mockBusiness));
+
+        // Stub the collection lookup used inside markReadyForPickup
+        OngoingStubbing<Optional<Collection>> optionalOngoingStubbing = when(collectionRepository.findByBusinessAndStatusNot(eq(mockBusiness), eq(Status.AFHENTET)))
+                .thenReturn(Optional.of(existingCollection));
+
+
         when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
         when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
 
         // Act
-        Collection result = pickupService.markReadyForPickup(dto);
+        Collection result = pickupService.markReadyForPickup(dto, auth);
 
         // Assert
         assertEquals(5, result.getBusinessBags(), "businessBags skal være 5");
@@ -92,11 +141,14 @@ class PickupServiceTest {
     @DisplayName("QE-75: Skal kaste exception hvis businessBags er 0")
     void testMarkReadyForPickup_ThrowsExceptionWhenBagsIsZero() {
         // Arrange
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 0);
+        CreateCollectionDTO dto = new CreateCollectionDTO(0);
+
+        // Mock Authentication
+        Authentication auth = mock(Authentication.class);
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            pickupService.markReadyForPickup(dto);
+            pickupService.markReadyForPickup(dto, auth);
         });
 
         assertTrue(exception.getMessage().contains("mindst 1"),
@@ -108,18 +160,36 @@ class PickupServiceTest {
     @DisplayName("QE-86 + QE-87: Kompllet opdatering af status og poser")
     void testMarkReadyForPickup_CompleteUpdate() {
         //Arrange
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(1, 3);
+        CreateCollectionDTO dto = new CreateCollectionDTO(3);
 
         Collection existingCollection = new Collection();
         existingCollection.setId(1);
         existingCollection.setStatus(Status.IKKE_KLAR);
         existingCollection.setBusinessBags(0);
 
+        // Mock Authentication
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        // Stub user lookup
+        AppUser mockUser = new AppUser();
+        mockUser.setUsername("testuser");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+        // Stub business lookup
+        var mockBusiness = new Business();
+        when(businessRepository.findByAppUser(mockUser)).thenReturn(Optional.of(mockBusiness));
+
+        // Stub the collection lookup used inside markReadyForPickup
+        OngoingStubbing<Optional<Collection>> optionalOngoingStubbing = when(collectionRepository.findByBusinessAndStatusNot(eq(mockBusiness), eq(Status.AFHENTET)))
+                .thenReturn(Optional.of(existingCollection));
+
+
         when(collectionRepository.findById(1)).thenReturn(Optional.of(existingCollection));
         when(collectionRepository.save(any(Collection.class))).thenReturn(existingCollection);
 
         //Act//
-        Collection result = pickupService.markReadyForPickup(dto);
+        Collection result = pickupService.markReadyForPickup(dto, auth);
 
         //Assert//
         assertAll("Alle felter skal opdateres korrektt",
