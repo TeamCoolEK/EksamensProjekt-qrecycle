@@ -21,8 +21,6 @@ public class Expense {
 
     private String title;
 
-    private String attachment;
-
     @Lob
     @Column(columnDefinition = "TEXT")
     private String receiptBase64;
@@ -37,10 +35,9 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(double amount, String title, String attachment, String receiptBase64, LocalDate date, AppUser user) {
+    public Expense(double amount, String title, String receiptBase64, LocalDate date, AppUser user) {
         this.amount = amount;
         this.title = title;
-        this.attachment = attachment;
         this.receiptBase64 = receiptBase64;
         this.date = date;
         this.user = user;

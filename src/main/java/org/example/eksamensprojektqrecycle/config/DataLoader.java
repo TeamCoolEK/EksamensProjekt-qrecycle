@@ -75,9 +75,9 @@ public class DataLoader implements CommandLineRunner {
         collectionRepository.save(new Collection(Status.IKKE_KLAR, 0, 0, biz3, route2));
 
         // Udgifter
-        expenseRepository.save(new Expense(124.50, "Diesel", null, null, LocalDate.now().minusDays(1), driver1));
-        expenseRepository.save(new Expense(49.00,  "Motorvejsbillet", null, null, LocalDate.now().minusDays(5), driver1));
-        expenseRepository.save(new Expense(220.00, "Reparation af bil", null, null, LocalDate.now().minusDays(2), driver2));
+        expenseRepository.save(new Expense(124.50, "Diesel", null, LocalDate.now().minusDays(1), driver1));
+        expenseRepository.save(new Expense(49.00,  "Motorvejsbillet", null, LocalDate.now().minusDays(5), driver1));
+        expenseRepository.save(new Expense(220.00, "Reparation af bil", null, LocalDate.now().minusDays(2), driver2));
 
         System.out.println("Dev dummy data indlæst.");
     }

@@ -54,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/driver/**").hasAnyAuthority("DRIVER", "ADMIN") //-..-
                         .requestMatchers("/business/**").hasAnyAuthority("BUSINESS", "ADMIN")
                         .requestMatchers("/auth/me").hasAnyAuthority("ADMIN", "DRIVER", "BUSINESS")//til at authorizere rollen som logger ind
-                        .requestMatchers("/login", "/register", "/", "/jwtkey", "/auth", "/doLogin").permitAll() //Endpoints som er tilladt uden login
+                        .requestMatchers("/login", "/register", "/", "/jwtkey", "/auth", "/doLogin", "/error").permitAll() //Endpoints som er tilladt uden login
                         .anyRequest().authenticated()
                 )
                 //Fjerner JSESSIONID, så man skal logge ind per request (til JWT token)

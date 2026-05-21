@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.controller;
 
+import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
@@ -10,16 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
+import org.springframework.security.core.Authentication;
+import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //Integration tests for BusinessController.
@@ -56,7 +63,7 @@ class BusinessControllerTest {
     @Test
     void markCollectionReady_success() throws Exception {
         // Forbered DTO som request body
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(3, 2); // collectionId=3, businessBags=2
+        CreateCollectionDTO dto = new CreateCollectionDTO(2); // collectionId=3, businessBags=2
 
         // Mock return fra service-laget
         Collection updated = new Collection();
@@ -64,7 +71,8 @@ class BusinessControllerTest {
         updated.setStatus(Status.KLAR);
         updated.setBusinessBags(2);
 
-        when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class))).thenReturn(updated);
+        when(pickupService.markReadyForPickup(any(CreateCollectionDTO.class), any()))
+                .thenReturn(updated);
 
         mockMvc.perform(post("/business/collection/ready")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,9 +89,9 @@ class BusinessControllerTest {
 
     @Test
     void markCollectionReady_badRequest() throws Exception {
-        UpdateCollectionStatusDTO dto = new UpdateCollectionStatusDTO(3, 0); // ugyldigt scenarie
+        CreateCollectionDTO dto = new CreateCollectionDTO(0); // ugyldigt scenarie
 
-        when(pickupService.markReadyForPickup(any(UpdateCollectionStatusDTO.class)))
+        when(pickupService.markReadyForPickup(any(CreateCollectionDTO.class), any()))
                 .thenThrow(new RuntimeException("Antal poser skal være mindst 1."));
 
         mockMvc.perform(post("/business/collection/ready")
@@ -220,6 +228,61 @@ class BusinessControllerTest {
                         org.hamcrest.Matchers.containsString("AFHENTET")));
 
         verify(pickupService,times(1)).cancelPickup(3);
+    }
+
+    //Test: getMyCollection success
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 200 og den authenticerede brugers Collection
+
+    @Test
+    void getMyCollection_success() throws Exception {
+        // Arrange: Mock Authentication til at returnere et username
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testUser");
+
+        // Mock collection som service returnerer
+        Collection collection = new Collection();
+        collection.setId(7);
+        collection.setStatus(Status.KLAR);
+        collection.setBusinessBags(3);
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenReturn(collection);
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.status").value("KLAR"))
+                .andExpect(jsonPath("$.businessBags").value(3));
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
+    }
+
+    //Test: getMyCollection notFound
+    //Endpoint: GET /business/me/collection
+    //Forventet: HTTP 404 og fejlbesked når ingen collection findes for bruger
+
+    @Test
+    void getMyCollection_notFound() throws Exception {
+        // Arrange
+        Authentication auth = mock(Authentication.class);
+        when(auth.getName()).thenReturn("testuser");
+
+        when(pickupService.getCollectionForAuthenticatedUser(any()))
+                .thenThrow(new RuntimeException("Ingen afhentning fundet for virksomhed"));
+
+        // Act & Assert
+        mockMvc.perform(get("/business/me/collection")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(authentication(auth)))
+                .andExpect(status().isNotFound());
+
+        verify(pickupService, times(1))
+                .getCollectionForAuthenticatedUser(any());
     }
 }
 
