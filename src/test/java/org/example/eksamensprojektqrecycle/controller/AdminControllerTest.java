@@ -3,12 +3,10 @@ package org.example.eksamensprojektqrecycle.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.eksamensprojektqrecycle.model.dto.BusinessResponseDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
+import org.example.eksamensprojektqrecycle.model.dto.GetExpensesDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.service.BusinessService;
-import org.example.eksamensprojektqrecycle.service.PickupService;
-import org.example.eksamensprojektqrecycle.service.StatisticService;
-import org.example.eksamensprojektqrecycle.service.UserService;
+import org.example.eksamensprojektqrecycle.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -16,6 +14,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -51,6 +50,9 @@ class AdminControllerTest {
 
     @MockitoBean
     private PickupService pickupService;
+
+    @MockitoBean
+    private ExpenseService expenseService;
 
     @Test
     void getAllBusinesses_shouldReturnAllBusinesses() throws Exception {
@@ -216,5 +218,63 @@ class AdminControllerTest {
                 .andExpect(content().string("Virksomhed blev ikke fundet"));
 
         verify(businessService).deleteBusiness(1);
+    }
+
+    @Test
+    void getAllExpenses_shouldReturnAllExpenses() throws Exception {
+
+        // Opretter to test-udgifter med kendte værdier
+        var expense1 = new GetExpensesDTO();
+        expense1.setAmount(150.75);
+        expense1.setDate(LocalDate.of(2024, 3, 15));
+        expense1.setReceiptBase64("base64encodedstring1");
+        expense1.setTitle("Diesel");
+        expense1.setUserId(1);
+
+        GetExpensesDTO expense2 = new GetExpensesDTO();
+        expense2.setAmount(300.00);
+        expense2.setDate(LocalDate.of(2024, 4, 20));
+        expense2.setReceiptBase64("base64encodedstring2");
+        expense2.setTitle("Arbejdshandsker");
+        expense2.setUserId(2);
+
+        // Simulerer at service returnerer begge udgifter
+        when(expenseService.getAllExpenses())
+                .thenReturn(List.of(expense1, expense2));
+
+        // Udfører GET-request og verificerer at begge udgifter returneres korrekt
+        mockMvc.perform(get("/admin/business/expenses"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].amount").value(150.75))
+                .andExpect(jsonPath("$[0].date").value("2024-03-15"))
+                .andExpect(jsonPath("$[0].receiptBase64").value("base64encodedstring1"))
+                .andExpect(jsonPath("$[0].title").value("Diesel"))
+                .andExpect(jsonPath("$[0].userId").value(1))
+
+                .andExpect(jsonPath("$[1].amount").value(300.00))
+                .andExpect(jsonPath("$[1].date").value("2024-04-20"))
+                .andExpect(jsonPath("$[1].receiptBase64").value("base64encodedstring2"))
+                .andExpect(jsonPath("$[1].title").value("Arbejdshandsker"))
+                .andExpect(jsonPath("$[1].userId").value(2));
+
+        // Bekræfter at service-metoden blev kaldt præcis én gang
+        verify(expenseService).getAllExpenses();
+    }
+
+    @Test
+    void getAllExpenses_shouldReturnEmptyList_whenNoExpensesExist() throws Exception {
+
+        // Simulerer at der ingen udgifter findes i systemet
+        when(expenseService.getAllExpenses())
+                .thenReturn(List.of());
+
+        // Udfører GET-request og verificerer at svaret er en tom liste med status 200
+        mockMvc.perform(get("/admin/business/expenses"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        // Bekræfter at service-metoden blev kaldt præcis én gang
+        verify(expenseService).getAllExpenses();
     }
 }
