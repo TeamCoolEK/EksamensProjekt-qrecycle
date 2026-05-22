@@ -7,21 +7,17 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    environment:
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
     depends_on:
       - springboot
 
   springboot: #starter springboot fra backend image
     image: ghcr.io/teamcoolek/qrecycle-backend:latest
     environment: #enviorment variables for db connection
-      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${PROD_URL}
       SPRING_DATASOURCE_USERNAME: ${PROD_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${PROD_PASSWORD}
-
-      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
-      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      APP_JWT_SECRET: ${JWT_SECRET}
     expose:
       - "8080"
 
