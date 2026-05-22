@@ -13,6 +13,7 @@ services:
   springboot: #starter springboot fra backend image
     image: ghcr.io/teamcoolek/qrecycle-backend:latest
     environment: #enviorment variables for db connection
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${PROD_URL}
       SPRING_DATASOURCE_USERNAME: ${PROD_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${PROD_PASSWORD}
