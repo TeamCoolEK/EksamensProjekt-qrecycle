@@ -1,16 +1,13 @@
 package org.example.eksamensprojektqrecycle.controller;
 
-import jakarta.servlet.http.HttpSession;
 import org.example.eksamensprojektqrecycle.model.dto.CollectionRequestDTO;
 import org.example.eksamensprojektqrecycle.model.dto.DriverLocationDTO;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
-import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.service.DriverLocationService;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 

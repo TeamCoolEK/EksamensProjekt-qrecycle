@@ -2,7 +2,6 @@ package org.example.eksamensprojektqrecycle.security;
 
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
-import org.example.eksamensprojektqrecycle.service.UserService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
