@@ -71,6 +71,7 @@ public class LoginController {
         }
     }
 
+
     //get til at hente user fra spring context
     @GetMapping("/auth")
     public Authentication getAuthentication() {
