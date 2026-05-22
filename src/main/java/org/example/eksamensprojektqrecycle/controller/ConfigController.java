@@ -10,7 +10,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/config")
 public class ConfigController {
-    @Value("${GOOGLE_API_KEY}")
+    @Value("${google.api.key}")
     private String mapsApiKey;
 
     @GetMapping("/maps")
