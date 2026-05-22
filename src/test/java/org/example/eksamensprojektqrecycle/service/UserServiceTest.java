@@ -1,12 +1,16 @@
 package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,6 +29,61 @@ class UserServiceTest {
     private final UserService userService =
             new UserService(userRepository, passwordEncoder);
 
+
+    //QE-330: Test at alle bruger vises korrekt med navn og rolle fra DB
+    @Test
+    void getAllUsers_shouldReturnAllUsersWithCorrectUsernameAndRole() {
+        // Arrange: Opret mock brugere som "kommer fra databasen"
+        AppUser admin = new AppUser();
+        admin.setId(1);
+        admin.setUsername("admin");
+        admin.setPassword("encoded-admin-password");
+        admin.setRole(Role.ADMIN);
+
+        AppUser driver = new AppUser();
+        driver.setId(2);
+        driver.setUsername("driver1");
+        driver.setPassword("encoded-driver-password");
+        driver.setRole(Role.DRIVER);
+
+        AppUser business = new AppUser();
+        business.setId(3);
+        business.setUsername("business1");
+        business.setPassword("encoded-business-password");
+        business.setRole(Role.BUSINESS);
+
+        // Mock repository til at returnere disse brugere
+        when(userRepository.findAll())
+                .thenReturn(Arrays.asList(admin, driver, business));
+
+        // Act: Kald metoden der skal testes
+        List<UserResponseDTO> result = userService.getAllUsers();
+
+        // Assert: Verificer at alle brugere returneres
+        assertNotNull(result, "Result should not be null");
+        assertEquals(3, result.size(), "Should return 3 users");
+
+        // Verificer første bruger (admin)
+        UserResponseDTO adminDTO = result.get(0);
+        assertEquals(1, adminDTO.getId(), "Admin ID should match");
+        assertEquals("admin", adminDTO.getUsername(), "Admin username should match");
+        assertEquals("ADMIN", adminDTO.getRole(), "Admin role should be ADMIN");
+
+        // Verificer anden bruger (driver)
+        UserResponseDTO driverDTO = result.get(1);
+        assertEquals(2, driverDTO.getId(), "Driver ID should match");
+        assertEquals("driver1", driverDTO.getUsername(), "Driver username should match");
+        assertEquals("DRIVER", driverDTO.getRole(), "Driver role should be DRIVER");
+
+        // Verificer tredje bruger (business)
+        UserResponseDTO businessDTO = result.get(2);
+        assertEquals(3, businessDTO.getId(), "Business ID should match");
+        assertEquals("business1", businessDTO.getUsername(), "Business username should match");
+        assertEquals("BUSINESS", businessDTO.getRole(), "Business role should be BUSINESS");
+
+        // Verificer at repository blev kaldt korrekt
+        verify(userRepository).findAll();
+    }
 
     // Tester at chauffør gemmes korrekt når pinkoden er præcis 4 cifre
     @Test
