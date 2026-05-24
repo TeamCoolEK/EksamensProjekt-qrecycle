@@ -95,7 +95,7 @@ public class AdminController {
     }
 
     //henter alle expenses
-    @GetMapping("/business/expenses")
+    @GetMapping("/expenses")
     public ResponseEntity<List<GetExpensesDTO>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
