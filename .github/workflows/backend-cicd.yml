@@ -71,12 +71,13 @@ jobs:
 
             cd ~/qrecycle
             
+            echo "SPRING_PROFILES_ACTIVE=prod" >> .env
             echo "PROD_URL=${{ secrets.PROD_URL }}" > .env
             echo "PROD_PASSWORD=${{ secrets.PROD_PASSWORD }}" >> .env
             echo "PROD_USERNAME=${{ secrets.PROD_USERNAME }}" >> .env
-            echo "GOOGE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
-            echo "ALLOWED_ORIGINS=https://teamcool.swag.dk" >> .env
-            echo "SPRING_PROFILES_ACTIVE=prod" >> .env  
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
+            echo "ALLOWED_ORIGIN=https://teamcool.swag.dk" >> .env
           
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d

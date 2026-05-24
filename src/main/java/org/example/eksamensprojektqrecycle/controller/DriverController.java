@@ -108,6 +108,16 @@ public class DriverController {
         return ResponseEntity.ok(location);
     }
 
+    /*Fjerner chaufføren position fra hukommelsen ved ruteafslutning,
+    altså når listen med collections er alle markeret som afhentet. */
+    @DeleteMapping("/location")
+    public ResponseEntity<?> removeLocation(Authentication authentication) {
+        System.out.println("removeLocation kaldt");
+        String username = authentication.getName();
+        driverLocationService.removeLocation(username);
+        return ResponseEntity.ok("Position fjernet");
+    }
+
 
     // Fanger RuntimeException og returnerer 500 med fejlbesked
     @ExceptionHandler(RuntimeException.class)
