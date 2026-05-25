@@ -150,6 +150,7 @@ public class UserService implements UserDetailsService {
         dto.setUsername(user.getUsername());
         dto.setRole(user.getRole() != null ? user.getRole().name() : null);
         return dto;
+        //IDK?
     }
 }
 
