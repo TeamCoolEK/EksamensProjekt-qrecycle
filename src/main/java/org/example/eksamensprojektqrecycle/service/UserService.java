@@ -127,10 +127,9 @@ public class UserService implements UserDetailsService {
             boolean hasSpecialCharacter = password.matches(".*[^a-zA-Z0-9].*");
 
             if (!hasUppercase || !hasNumber || !hasLowercase || !hasSpecialCharacter) {
-                throw new RuntimeException("Password skal indeholde stort bogstav og tal");
+                throw new RuntimeException("Password skal indeholde stort bogstav, tal og specialtegn");
             }
         }
-    }
 
     // QE-322: Database query der henter alle brugere(id, username, role)
     // QE-323: Mapper til UserResponseDTO for JSON response (returnerer brugerdata som DTO til frontend)
@@ -150,7 +149,9 @@ public class UserService implements UserDetailsService {
         dto.setUsername(user.getUsername());
         dto.setRole(user.getRole() != null ? user.getRole().name() : null);
         return dto;
+        //IDK?
     }
 }
+
 
 
