@@ -130,7 +130,6 @@ public class UserService implements UserDetailsService {
                 throw new RuntimeException("Password skal indeholde stort bogstav og tal");
             }
         }
-    }
 
     // QE-322: Database query der henter alle brugere(id, username, role)
     // QE-323: Mapper til UserResponseDTO for JSON response (returnerer brugerdata som DTO til frontend)
@@ -153,5 +152,6 @@ public class UserService implements UserDetailsService {
         //IDK?
     }
 }
+
 
 
