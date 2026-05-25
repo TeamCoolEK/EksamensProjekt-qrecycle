@@ -127,7 +127,7 @@ public class UserService implements UserDetailsService {
             boolean hasSpecialCharacter = password.matches(".*[^a-zA-Z0-9].*");
 
             if (!hasUppercase || !hasNumber || !hasLowercase || !hasSpecialCharacter) {
-                throw new RuntimeException("Password skal indeholde stort bogstav og tal");
+                throw new RuntimeException("Password skal indeholde stort bogstav, tal og specialtegn");
             }
         }
 
