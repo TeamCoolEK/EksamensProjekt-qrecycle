@@ -8,19 +8,23 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     depends_on:
-      - springboot
+      - app
+    networks:
+      - webnet
 
-  springboot: #starter springboot fra backend image
+  app: #starter springboot fra backend image
     image: ghcr.io/teamcoolek/qrecycle-backend:latest
     environment: #enviorment variables for db connection
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: ${PROD_URL}
       SPRING_DATASOURCE_USERNAME: ${PROD_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${PROD_PASSWORD}
-      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       APP_JWT_SECRET: ${JWT_SECRET}
     expose:
       - "8080"
+    networks:
+      - webnet
 
   certbot: #certifikere https
     image: certbot/certbot
@@ -28,3 +32,6 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     command: certonly --webroot --non-interactive -w /var/www/certbot -d teamcool.swag.dk -d www.teamcool.swag.dk --email anoepbrsundahl@gmail.com --agree-tos --no-eff-email
+
+networks: #fælles netværk til front og backend, så de er sikret samme netværk ved compose
+  webnet:

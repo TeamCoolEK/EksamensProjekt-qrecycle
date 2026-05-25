@@ -3,11 +3,11 @@ package org.example.eksamensprojektqrecycle.controller;
 import org.example.eksamensprojektqrecycle.model.dto.*;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.model.entity.Expense;
 import org.example.eksamensprojektqrecycle.service.*;
 import org.example.eksamensprojektqrecycle.model.dto.AdminCollectionStatisticDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,11 +39,31 @@ public class AdminController {
         return ResponseEntity.ok(bagsReadyForPickup); // Returnere antal poser + status 200 (ok)
    }
 
-    // POST endpoint til oprettelse af bruger
+   //QE-321: GET endpoint til hentning af alle brugere
+   @GetMapping("/users")
+   public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+       List<UserResponseDTO> dtos = userService.getAllUsers();
+       return ResponseEntity.ok(dtos);
+   }
+
+    // POST - opret bruger
     @PostMapping("/users")
     public ResponseEntity<AppUser> createUser(@RequestBody CreateUserDTO dto) {
         AppUser createdUser = userService.createUser(dto); // Opretter bruger via service
         return ResponseEntity.ok(createdUser); // Returnerer bruger + status 200
+    }
+
+    //Slet bruger
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Bruger slettet");
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     @GetMapping("/businesses")
@@ -96,7 +116,7 @@ public class AdminController {
     }
 
     //henter alle expenses
-    @GetMapping("/business/expenses")
+    @GetMapping("/expenses")
     public ResponseEntity<List<GetExpensesDTO>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
