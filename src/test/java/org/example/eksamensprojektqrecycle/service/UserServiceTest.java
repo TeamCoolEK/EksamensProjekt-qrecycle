@@ -99,12 +99,12 @@ class UserServiceTest {
         // Opretter test DTO
         CreateUserDTO dto = new CreateUserDTO();
         dto.setUsername("driver1");
-        dto.setPassword("1234");
+        dto.setPassword("Abcd1234!");
         dto.setRole(Role.DRIVER);
 
         // Mock encoder
-        when(passwordEncoder.encode("1234"))
-                .thenReturn("encoded-driver-password");
+        when(passwordEncoder.encode("Abcd1234!"))
+                .thenReturn("Encoded-driver-password");
 
         // Kalder service
         userService.createUser(dto);
@@ -120,11 +120,11 @@ class UserServiceTest {
 
         // Tjekker data
         assertEquals("driver1", savedUser.getUsername());
-        assertEquals("encoded-driver-password", savedUser.getPassword());
+        assertEquals("Encoded-driver-password", savedUser.getPassword());
         assertEquals(Role.DRIVER, savedUser.getRole());
 
         // Verificerer encoding
-        verify(passwordEncoder).encode("1234");
+        verify(passwordEncoder).encode("Abcd1234!");
     }
 
 

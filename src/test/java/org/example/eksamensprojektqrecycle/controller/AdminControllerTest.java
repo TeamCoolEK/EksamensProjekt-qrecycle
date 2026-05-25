@@ -243,7 +243,7 @@ class AdminControllerTest {
                 .thenReturn(List.of(expense1, expense2));
 
         // Udfører GET-request og verificerer at begge udgifter returneres korrekt
-        mockMvc.perform(get("/admin/business/expenses"))
+        mockMvc.perform(get("/admin/expenses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].amount").value(150.75))
                 .andExpect(jsonPath("$[0].date").value("2024-03-15"))
@@ -269,7 +269,7 @@ class AdminControllerTest {
                 .thenReturn(List.of());
 
         // Udfører GET-request og verificerer at svaret er en tom liste med status 200
-        mockMvc.perform(get("/admin/business/expenses"))
+        mockMvc.perform(get("/admin/expenses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
