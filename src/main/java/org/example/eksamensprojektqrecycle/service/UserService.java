@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,15 +90,16 @@ public class UserService implements UserDetailsService {
     private String getCurrentUsername() {
 
         try {
-            Object principal = SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
+            Object principal = Objects.requireNonNull(SecurityContextHolder
+                            .getContext()
+                            .getAuthentication())
                     .getPrincipal();
 
             if (principal instanceof UserDetails userDetails) {
                 return userDetails.getUsername();
             }
 
+            assert principal != null;
             return principal.toString();
 
         } catch (Exception e) {
