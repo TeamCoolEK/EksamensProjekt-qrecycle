@@ -1,8 +1,7 @@
 package org.example.eksamensprojektqrecycle.config;
 
-import org.example.eksamensprojektqrecycle.exceptionHandling.CustomAccessDeniedHandler;
-import org.example.eksamensprojektqrecycle.exceptionHandling.CustomBasicAuthenticationEntryPoint;
-import org.example.eksamensprojektqrecycle.security.JWTTokenGeneratorFilter;
+import org.example.eksamensprojektqrecycle.security.CustomAccessDeniedHandler;
+import org.example.eksamensprojektqrecycle.security.CustomBasicAuthenticationEntryPoint;
 import org.example.eksamensprojektqrecycle.security.JWTTokenValidatorFilter;
 import org.example.eksamensprojektqrecycle.security.RequestValidationBeforeFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,11 +30,9 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:63342}") // app.cors.... henter fra dev og prod properties... localhost:63342 er en fallback, hvis de skulle fejle.
     private String allowedOrigins; // origins endpoints gemt her.
 
-    private final JWTTokenGeneratorFilter jwtTokenGeneratorFilter;
     private final JWTTokenValidatorFilter jwtTokenValidatorFilter;
     //Dependency injecter, for at læse JWT Key value
-    public SecurityConfig(JWTTokenGeneratorFilter jwtTokenGeneratorFilter, JWTTokenValidatorFilter jwtTokenValidatorFilter) {
-        this.jwtTokenGeneratorFilter = jwtTokenGeneratorFilter;
+    public SecurityConfig(JWTTokenValidatorFilter jwtTokenValidatorFilter) {
         this.jwtTokenValidatorFilter = jwtTokenValidatorFilter;
     }
 

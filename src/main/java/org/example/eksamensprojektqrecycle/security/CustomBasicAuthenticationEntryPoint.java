@@ -1,4 +1,4 @@
-package org.example.eksamensprojektqrecycle.exceptionHandling;
+package org.example.eksamensprojektqrecycle.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +17,7 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         LocalDateTime currentTime = LocalDateTime.now();
         String path = request.getRequestURI();
-        //response.setHeader("QResycle-error-reason", "Authentication failed"); // custom header
+        response.setHeader("QResycle-error-reason", "Authentication failed"); // custom header
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
 

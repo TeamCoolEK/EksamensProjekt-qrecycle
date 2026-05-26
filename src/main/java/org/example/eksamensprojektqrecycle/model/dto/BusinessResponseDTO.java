@@ -1,5 +1,10 @@
 package org.example.eksamensprojektqrecycle.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class BusinessResponseDTO {
 
     private int id;
@@ -16,23 +21,4 @@ public class BusinessResponseDTO {
         this.address = address;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public String getContactPerson() {
-        return contactPerson;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getAddress() {
-        return address;
-    }
 }

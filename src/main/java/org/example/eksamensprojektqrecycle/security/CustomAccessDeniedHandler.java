@@ -1,4 +1,4 @@
-package org.example.eksamensprojektqrecycle.exceptionHandling;
+package org.example.eksamensprojektqrecycle.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

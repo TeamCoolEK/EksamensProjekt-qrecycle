@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.example.eksamensprojektqrecycle.service.JWTTokenGeneratorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,17 +23,17 @@ import java.util.Map;
 @RestController
 public class LoginController {
 
-    @Autowired
-    JWTTokenGeneratorService jwtService;
+    private final JWTTokenGeneratorService jwtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
+    public LoginController(JWTTokenGeneratorService jwtService, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+    }
 
     @PostMapping("/register") // registerer en ny user
     public ResponseEntity<String> registerUser(@RequestBody AppUser appUser) {

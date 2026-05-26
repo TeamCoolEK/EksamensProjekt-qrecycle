@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/driver")
@@ -124,7 +123,4 @@ public class DriverController {
     public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.status(500).body(e.getMessage());
     }
-
-
-
 }

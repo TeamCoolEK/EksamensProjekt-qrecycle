@@ -1,5 +1,6 @@
 package org.example.eksamensprojektqrecycle.service;
 
+import org.example.eksamensprojektqrecycle.exception.ResourceNotFoundException;
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
@@ -7,25 +8,17 @@ import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -108,27 +101,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        Optional<AppUser> appUser = userRepository.findByUsername(username);
-
-        if (appUser.isEmpty()) {
-            throw new UsernameNotFoundException(username + " username not found");
-        }
-
-        AppUser user = appUser.get();
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
-
-        return new User(
-                user.getUsername(),
-                user.getPassword(),
-                authorities
-        );
-    }
-
     private void validatePassword(CreateUserDTO dto) {
 
         String password = dto.getPassword();
@@ -148,7 +120,6 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserResponseDTO> getAllUsers() {
-
         return userRepository.findAll()
                 .stream()
                 .map(this::toUserResponseDto)
