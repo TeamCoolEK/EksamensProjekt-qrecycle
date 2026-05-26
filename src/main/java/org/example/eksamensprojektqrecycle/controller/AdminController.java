@@ -120,4 +120,13 @@ public class AdminController {
     public ResponseEntity<List<GetExpensesDTO>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable int id,
+            @RequestBody UpdateUserDTO dto
+    ) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.ok("Bruger opdateret");
+    }
 }
