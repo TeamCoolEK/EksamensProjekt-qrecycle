@@ -4,6 +4,7 @@ import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
