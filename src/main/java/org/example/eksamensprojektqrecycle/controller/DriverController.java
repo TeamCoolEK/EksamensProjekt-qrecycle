@@ -5,6 +5,7 @@ import org.example.eksamensprojektqrecycle.model.dto.DriverLocationDTO;
 import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.service.DriverLocationService;
+import org.example.eksamensprojektqrecycle.service.EndStopService;
 import org.example.eksamensprojektqrecycle.service.ExpenseService;
 import org.example.eksamensprojektqrecycle.service.PickupService;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,13 @@ public class DriverController {
     private final ExpenseService expenseService;
     private final PickupService pickupService;
     private final DriverLocationService driverLocationService;
+    private final EndStopService endStopService;
 
-    public DriverController(ExpenseService expenseService, PickupService pickupService, DriverLocationService driverLocationService) {
+    public DriverController(ExpenseService expenseService, PickupService pickupService, DriverLocationService driverLocationService, EndStopService endStopService) {
         this.expenseService = expenseService;
         this.pickupService = pickupService;
         this.driverLocationService = driverLocationService;
+        this.endStopService = endStopService;
     }
 
     // Henter aktive afhentninger
@@ -122,5 +125,10 @@ public class DriverController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.status(500).body(e.getMessage());
+    }
+
+    @GetMapping("/get/endstop")
+    public ResponseEntity<?> getEndStop() {
+        return ResponseEntity.ok(endStopService.findEndStop());
     }
 }
