@@ -4,6 +4,7 @@ import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
+import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,9 +26,15 @@ class UserServiceTest {
     private final PasswordEncoder passwordEncoder =
             mock(PasswordEncoder.class);
 
+    // Mock business repository
+    private final BusinessRepository businessRepository =
+            mock(BusinessRepository.class);
+
+
     // Service som testes
     private final UserService userService =
-            new UserService(userRepository, passwordEncoder);
+            new UserService(userRepository, passwordEncoder, businessRepository);
+
 
 
     //QE-330: Test at alle bruger vises korrekt med navn og rolle fra DB
