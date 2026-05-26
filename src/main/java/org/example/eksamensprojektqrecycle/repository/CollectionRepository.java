@@ -31,5 +31,7 @@ public interface CollectionRepository extends JpaRepository<Collection, Integer>
 
     //bruges til at finde seneste afhentet collection, til visning i business dashboard
     Optional<Collection> findTopByBusinessAndStatusOrderByUpdatedAtDesc(Business business, Status status);
+
+    void deleteByBusiness(Business business);
 }
 

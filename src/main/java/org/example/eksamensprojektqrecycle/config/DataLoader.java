@@ -16,28 +16,26 @@ import java.time.LocalDate;
 @Profile("dev") // køre kun på dev
 public class DataLoader implements CommandLineRunner {
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
-    private final RouteRepository routeRepository;
-    private final TempStopRepository tempStopRepository;
     private final CollectionRepository collectionRepository;
     private final ExpenseRepository expenseRepository;
+    private final EndStopRepository endStopRepository;
 
-    public DataLoader(UserRepository userRepository,
+    public DataLoader(PasswordEncoder passwordEncoder,
+                      UserRepository userRepository,
                       BusinessRepository businessRepository,
-                      RouteRepository routeRepository,
-                      TempStopRepository tempStopRepository,
                       CollectionRepository collectionRepository,
-                      ExpenseRepository expenseRepository) {
+                      ExpenseRepository expenseRepository,
+                      EndStopRepository endStopRepository) {
+        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
-        this.routeRepository = routeRepository;
-        this.tempStopRepository = tempStopRepository;
         this.collectionRepository = collectionRepository;
         this.expenseRepository = expenseRepository;
+        this.endStopRepository = endStopRepository;
     }
 
     @Override
@@ -59,25 +57,19 @@ public class DataLoader implements CommandLineRunner {
         Business biz2 = businessRepository.save(new Business("Genbrug Syd ApS", "Frederik Jensen", "28765432", "Amager Landevej 88, 2300 København S", bizUser2));
         Business biz3 = businessRepository.save(new Business("Genbrug Øst ApS", "Emma Nielsen", "29112233", "Østerbrogade 45, 2100 København Ø", bizUser3));
 
-        // Ruter
-        Route route1 = routeRepository.save(new Route(Status.KLAR));
-        Route route2 = routeRepository.save(new Route(Status.IKKE_KLAR));
-
-        // Midlertidige stop
-        tempStopRepository.save(new TempStop("Nørrebrogade 12, 2200 København N", route1));
-        tempStopRepository.save(new TempStop("Amager Landevej 88, 2300 København S", route1));
-        tempStopRepository.save(new TempStop("Østerbrogade 45, 2100 København Ø", route2));
-        tempStopRepository.save(new TempStop("Vesterbrogade 3, 1620 København V", route2));
-
         // Afhentninger
-        collectionRepository.save(new Collection(Status.AFHENTET, 5, 5, biz1, route1));
-        collectionRepository.save(new Collection(Status.KLAR,     5, 0, biz2, route1));
-        collectionRepository.save(new Collection(Status.IKKE_KLAR, 0, 0, biz3, route2));
+        collectionRepository.save(new Collection(Status.AFHENTET, 5, 5, biz1));
+        collectionRepository.save(new Collection(Status.KLAR,     5, 0, biz2));
+        collectionRepository.save(new Collection(Status.IKKE_KLAR, 0, 0, biz3));
 
         // Udgifter
         expenseRepository.save(new Expense(124.50, "Diesel", null, LocalDate.now().minusDays(1), driver1));
         expenseRepository.save(new Expense(49.00,  "Motorvejsbillet", null, LocalDate.now().minusDays(5), driver1));
         expenseRepository.save(new Expense(220.00, "Reparation af bil", null, LocalDate.now().minusDays(2), driver2));
+
+        // endstop
+        endStopRepository.save(new EndStop(1, "Retortvej 38, 2500 Valby"));
+
 
         System.out.println("Dev dummy data indlæst.");
     }

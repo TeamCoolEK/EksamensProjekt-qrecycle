@@ -7,7 +7,6 @@ import org.example.eksamensprojektqrecycle.service.*;
 import org.example.eksamensprojektqrecycle.model.dto.AdminCollectionStatisticDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,13 +21,20 @@ public class AdminController {
     private final BusinessService businessService;
     private final PickupService pickupService;
     private final ExpenseService expenseService;
+    private final EndStopService endStopService;
 
-    public AdminController(UserService userService, StatisticService statisticService, BusinessService businessService, PickupService pickupService, ExpenseService expenseService) { // Constructor injection
+    public AdminController(UserService userService,
+                           StatisticService statisticService,
+                           BusinessService businessService,
+                           PickupService pickupService,
+                           ExpenseService expenseService,
+                           EndStopService endStopService) { // Constructor injection
         this.userService = userService;
         this.statisticService = statisticService;
         this.businessService = businessService;
         this.pickupService = pickupService;
         this.expenseService = expenseService;
+        this.endStopService = endStopService;
     }
 
     // GET endpoint til hentning af dashboard data
@@ -131,5 +137,17 @@ public class AdminController {
     ) {
         userService.updateUser(id, dto);
         return ResponseEntity.ok("Bruger opdateret");
+    }
+
+    @GetMapping("/get/endstop")
+    public ResponseEntity<?> getEndStop() {
+        return ResponseEntity.ok(endStopService.findEndStop());
+    }
+
+    @PostMapping("/save/endstop")
+    public ResponseEntity<?> saveEndStop(
+            @RequestBody EndStopDTO dto
+    ) {
+        return ResponseEntity.ok(endStopService.saveEndStop(dto));
     }
 }

@@ -156,7 +156,7 @@ class ExpenseServiceTest {
         assertEquals(LocalDate.of(2024, 1, 15), dto.getDate());
         assertEquals("base64string", dto.getReceiptBase64());
         assertEquals("Frokost", dto.getTitle());
-        assertEquals(1L, dto.getUserId());
+        assertEquals(1, dto.getUserId());
     }
 
     @Test

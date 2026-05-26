@@ -7,6 +7,7 @@ import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
+import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,12 +27,14 @@ class BusinessServiceTest {
     // Mock repository til brugere
     private final UserRepository userRepository = mock(UserRepository.class);
 
+    private final CollectionRepository collectionRepository = mock(CollectionRepository.class);
+
     // Mock passwordEncoder
     private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
 
     // Service som testes
     private final BusinessService businessService =
-            new BusinessService(businessRepository, userRepository, passwordEncoder);
+            new BusinessService(businessRepository, userRepository, collectionRepository, passwordEncoder);
 
     // Tester at virksomhed og bruger gemmes korrekt
     @Test
