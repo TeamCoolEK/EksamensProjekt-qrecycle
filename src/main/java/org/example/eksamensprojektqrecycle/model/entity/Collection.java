@@ -50,24 +50,17 @@ public class Collection {
     @JoinColumn(name = "business_id")
     private Business business;
 
-    // Mange collections kan tilhøre én rute
-    // Foreign key gemmes i Collection tabellen
-    @JsonBackReference("route-collection")
-    @ManyToOne
-    @JoinColumn(name = "route_id")
-    private Route route;
 
     // Tom constructor kræves af JPA
     public Collection() {
     }
 
     // Constructor til oprettelse af collection
-    public Collection(Status status, int businessBags, int driverBags, Business business, Route route) {
+    public Collection(Status status, int businessBags, int driverBags, Business business) {
         this.status = status;
         this.businessBags = businessBags;
         this.driverBags = driverBags;
         this.business = business;
-        this.route = route;
     }
 
     //QE-119: Sætter createdAt og updatedAt når en collection oprettes første gang//

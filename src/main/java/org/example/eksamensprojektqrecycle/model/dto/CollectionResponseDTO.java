@@ -1,9 +1,13 @@
 package org.example.eksamensprojektqrecycle.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 public class CollectionResponseDTO {
 
     private int id;
@@ -32,31 +36,4 @@ public class CollectionResponseDTO {
         this.status = status;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getBusinessName() {
-        return businessName;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public int getBusinessBags() {
-        return businessBags;
-    }
-
-    public int getDriverBags() {
-        return driverBags;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
 }

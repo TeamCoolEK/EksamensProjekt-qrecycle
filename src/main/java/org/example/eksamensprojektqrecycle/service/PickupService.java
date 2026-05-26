@@ -102,7 +102,7 @@ public class PickupService {
         Optional<Collection> existingCollection = collectionRepository.findByBusinessAndStatusNot(business, Status.AFHENTET);
 
         if (existingCollection.isEmpty() || existingCollection.get().getStatus() == Status.AFHENTET) {
-            Collection newCollection = new Collection(Status.KLAR, dto.getBusinessBags(), 0, business, null);
+            Collection newCollection = new Collection(Status.KLAR, dto.getBusinessBags(), 0, business);
             return collectionRepository.save(newCollection);
         }
 
