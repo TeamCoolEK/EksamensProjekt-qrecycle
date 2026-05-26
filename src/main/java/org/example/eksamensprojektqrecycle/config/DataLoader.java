@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @Profile("dev") // køre kun på dev
 public class DataLoader implements CommandLineRunner {
 
-
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final BusinessRepository businessRepository;
