@@ -76,8 +76,6 @@ jobs:
             echo "PROD_USERNAME=${{ secrets.PROD_USERNAME }}" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
-            echo "GOOGLE_MAP_ID=${{ secrets.GOOGLE_MAP_ID }}" >> .env
-            echo "ALLOWED_ORIGIN=https://teamcool.swag.dk" >> .env
           
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml down --remove-orphans
