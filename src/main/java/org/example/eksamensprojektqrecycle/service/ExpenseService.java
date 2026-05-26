@@ -70,7 +70,8 @@ public class ExpenseService {
                     dto.setDate(expense.getDate());
                     dto.setReceiptBase64(expense.getReceiptBase64());
                     dto.setTitle(expense.getTitle());
-                    dto.setUserId(expense.getUser().getId());
+                    dto.setUserId(expense.getUser() != null ? expense.getUser().getId() : null);
+                    dto.setUsername(expense.getUser() != null ? expense.getUser().getUsername() : null);
                     return dto;
                 })
                 .collect(Collectors.toList());

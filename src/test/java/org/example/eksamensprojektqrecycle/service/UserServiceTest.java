@@ -5,6 +5,7 @@ import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
+import org.example.eksamensprojektqrecycle.repository.ExpenseRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,10 +31,14 @@ class UserServiceTest {
     private final BusinessRepository businessRepository =
             mock(BusinessRepository.class);
 
+    // Mock expenses repository
+    private final ExpenseRepository expenseRepository =
+            mock(ExpenseRepository.class);
+
 
     // Service som testes
     private final UserService userService =
-            new UserService(userRepository, passwordEncoder, businessRepository);
+            new UserService(userRepository, passwordEncoder, businessRepository, expenseRepository);
 
 
 

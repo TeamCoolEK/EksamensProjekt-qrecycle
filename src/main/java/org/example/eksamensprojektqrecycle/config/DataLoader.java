@@ -22,17 +22,20 @@ public class DataLoader implements CommandLineRunner {
     private final BusinessRepository businessRepository;
     private final CollectionRepository collectionRepository;
     private final ExpenseRepository expenseRepository;
+    private final EndStopRepository endStopRepository;
 
     public DataLoader(PasswordEncoder passwordEncoder,
                       UserRepository userRepository,
                       BusinessRepository businessRepository,
                       CollectionRepository collectionRepository,
-                      ExpenseRepository expenseRepository) {
+                      ExpenseRepository expenseRepository,
+                      EndStopRepository endStopRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.businessRepository = businessRepository;
         this.collectionRepository = collectionRepository;
         this.expenseRepository = expenseRepository;
+        this.endStopRepository = endStopRepository;
     }
 
     @Override
@@ -63,6 +66,10 @@ public class DataLoader implements CommandLineRunner {
         expenseRepository.save(new Expense(124.50, "Diesel", null, LocalDate.now().minusDays(1), driver1));
         expenseRepository.save(new Expense(49.00,  "Motorvejsbillet", null, LocalDate.now().minusDays(5), driver1));
         expenseRepository.save(new Expense(220.00, "Reparation af bil", null, LocalDate.now().minusDays(2), driver2));
+
+        // endstop
+        endStopRepository.save(new EndStop(1, "Retortvej 38, 2500 Valby"));
+
 
         System.out.println("Dev dummy data indlæst.");
     }

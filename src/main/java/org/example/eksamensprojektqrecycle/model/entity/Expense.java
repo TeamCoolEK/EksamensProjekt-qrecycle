@@ -28,7 +28,7 @@ public class Expense {
 
     @JsonBackReference
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = true) // skal tillade null så expenses bruger kan gå i null
     private AppUser user;
 
     public Expense() {

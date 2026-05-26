@@ -13,5 +13,6 @@ public class GetExpensesDTO {
     private LocalDate date;
     private String receiptBase64;
     private String title;
-    private int userId;
+    private Integer userId;
+    private String username;
 }

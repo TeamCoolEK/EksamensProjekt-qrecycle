@@ -5,11 +5,14 @@ import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
+import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
+import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,15 +21,17 @@ public class BusinessService {
 
     private final BusinessRepository businessRepository;
     private final UserRepository userRepository;
+    private final CollectionRepository collectionRepository;
     private final PasswordEncoder passwordEncoder;
 
     public BusinessService(
             BusinessRepository businessRepository,
-            UserRepository userRepository,
+            UserRepository userRepository, CollectionRepository collectionRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.businessRepository = businessRepository;
         this.userRepository = userRepository;
+        this.collectionRepository = collectionRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -121,6 +126,7 @@ public class BusinessService {
         }
     }
 
+    @Transactional
     public void deleteBusiness(int id) {
 
         Business business = businessRepository.findById(id)
@@ -141,6 +147,8 @@ public class BusinessService {
         }
 
         businessRepository.save(business);
+
+        collectionRepository.deleteByBusiness(business);
 
         // Slet derefter business
         businessRepository.delete(business);

@@ -54,6 +54,9 @@ class AdminControllerTest {
     @MockitoBean
     private ExpenseService expenseService;
 
+    @MockitoBean
+    private EndStopService endStopService;
+
     @Test
     void getAllBusinesses_shouldReturnAllBusinesses() throws Exception {
 
