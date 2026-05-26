@@ -4,6 +4,7 @@ import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UpdateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
+import org.example.eksamensprojektqrecycle.model.enums.Role;
 import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,29 +66,41 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    //QE-206: Implementer databasekald til sletning
     public void deleteUser(int id) {
-
+        //Find brugeren i DB
         AppUser user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bruger blev ikke fundet"));
 
+        //Forbyd sletning af egen bruger(admin)
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null && user.getUsername().equals(currentUsername)) {
+            throw new RuntimeException("Du kan ikke slette din egen bruger");
+        }
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Admin brugere kan ikke slettes af sikkerhedsmæssige årsager");
+        }
+        //QE-206: Slet brugeren fra DB (SQL: DELETE FROM app_user WHERE id = ?
         businessRepository.findByAppUser(user)
                 .ifPresent(businessRepository::delete);
 
         userRepository.delete(user);
     }
 
+    //Helper: Hent nuværende brugers username fra security context
     private String getCurrentUsername() {
 
         try {
-            Object principal = SecurityContextHolder
-                    .getContext()
-                    .getAuthentication()
+            Object principal = Objects.requireNonNull(SecurityContextHolder
+                            .getContext()
+                            .getAuthentication())
                     .getPrincipal();
 
             if (principal instanceof UserDetails userDetails) {
                 return userDetails.getUsername();
             }
 
+            assert principal != null;
             return principal.toString();
 
         } catch (Exception e) {
