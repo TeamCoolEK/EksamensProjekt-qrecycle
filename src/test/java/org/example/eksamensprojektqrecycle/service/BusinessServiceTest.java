@@ -45,6 +45,7 @@ class BusinessServiceTest {
         dto.setPhoneNumber("28123456");
         dto.setAddress("Nørrebrogade 12");
         dto.setUsername("frankspizza");
+        dto.setPassword("Franks!1");
 
         // Mock save på user repository
         when(userRepository.save(any(AppUser.class)))
@@ -55,7 +56,7 @@ class BusinessServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         when(passwordEncoder.encode(anyString()))
-                .thenReturn("encoded-password");
+                .thenReturn("Encoded-password!1");
 
         // Kalder service metode
         Business createdBusiness = businessService.createBusiness(dto);
@@ -81,11 +82,11 @@ class BusinessServiceTest {
         assertEquals(Role.BUSINESS, savedUser.getRole());
 
         // Tjekker at password er 4 cifre
-        assertEquals("encoded-password", savedUser.getPassword());
+        assertEquals("Encoded-password!1", savedUser.getPassword());
 
         ArgumentCaptor<String> passwordCaptor = ArgumentCaptor.forClass(String.class);
         verify(passwordEncoder).encode(passwordCaptor.capture());
-        assertTrue(passwordCaptor.getValue().matches("\\d{4}"));
+        assertEquals("Franks!1", passwordCaptor.getValue());
         // Verificerer virksomhedsdata
         assertEquals("Franks Pizza", savedBusiness.getCompanyName());
         assertEquals("Frank", savedBusiness.getContactPerson());
