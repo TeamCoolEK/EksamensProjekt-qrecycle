@@ -3,7 +3,6 @@ package org.example.eksamensprojektqrecycle.controller;
 import org.example.eksamensprojektqrecycle.model.dto.*;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.model.entity.Expense;
 import org.example.eksamensprojektqrecycle.service.*;
 import org.example.eksamensprojektqrecycle.model.dto.AdminCollectionStatisticDTO;
 import org.springframework.http.HttpStatus;
@@ -120,8 +119,17 @@ public class AdminController {
     }
 
     //henter alle expenses
-    @GetMapping("/business/expenses")
+    @GetMapping("/expenses")
     public ResponseEntity<List<GetExpensesDTO>> getAllExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable int id,
+            @RequestBody UpdateUserDTO dto
+    ) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.ok("Bruger opdateret");
     }
 }

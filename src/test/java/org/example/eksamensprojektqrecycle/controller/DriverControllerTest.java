@@ -24,9 +24,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(DriverController.class)
@@ -203,6 +201,21 @@ class DriverControllerTest {
 
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Ingen aktiv position fundet — genstart venligst sporing"));
+    }
+
+    @Test
+    void removeLocation_gyldigRequest_returnerOk() throws Exception {
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("driver1", null, List.of());
+
+        mockMvc.perform(delete("/driver/location")
+                        .principal(authentication))
+
+                .andExpect(status().isOk())
+                .andExpect(content().string("Position fjernet"));
+
+        verify(driverLocationService).removeLocation(eq("driver1"));
     }
 }
 

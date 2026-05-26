@@ -42,6 +42,9 @@ public class ExpenseService {
         expense.setUser(user);
 
         expenseRepository.save(expense);
+
+        System.out.println(dto.getReceiptBase64().substring(0, 50));
+        System.out.println("Length: " + dto.getReceiptBase64().length());
     }
 
     private void validateExpense(ExpenseRequestDTO dto) {

@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import java.util.Optional;
 
 

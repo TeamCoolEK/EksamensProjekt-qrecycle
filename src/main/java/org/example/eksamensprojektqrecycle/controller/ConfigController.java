@@ -13,7 +13,7 @@ public class ConfigController {
     @Value("${google.api.key}")
     private String mapsApiKey;
 
-    @GetMapping("/maps")
+    @GetMapping("/maps") //retunere beskyttede google maps variabler til frontenden
     public Map<String, String> getMapsConfig() {
         return Map.of("apiKey", mapsApiKey);
     }

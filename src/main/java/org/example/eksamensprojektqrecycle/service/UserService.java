@@ -1,9 +1,10 @@
 package org.example.eksamensprojektqrecycle.service;
 
 import org.example.eksamensprojektqrecycle.model.dto.CreateUserDTO;
+import org.example.eksamensprojektqrecycle.model.dto.UpdateUserDTO;
 import org.example.eksamensprojektqrecycle.model.dto.UserResponseDTO;
 import org.example.eksamensprojektqrecycle.model.entity.AppUser;
-import org.example.eksamensprojektqrecycle.model.enums.Role;
+import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
 import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,14 +26,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BusinessRepository businessRepository;
 
-    // Constructor injection
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, BusinessRepository businessRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.businessRepository = businessRepository;
     }
 
-    // Returnerer UserResponseDTO
     public AppUser createUser(CreateUserDTO dto) {
 
         if (dto.getUsername() == null || dto.getUsername().isBlank()) {
@@ -47,14 +48,14 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Rolle mangler");
         }
 
-        if(userRepository.findByUsername(dto.getUsername()).isPresent()) {
-            throw new RuntimeException("Brugernavn er allerde i brug");
-
+        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new RuntimeException("Brugernavn er allerede i brug");
         }
 
         validatePassword(dto);
 
         AppUser user = new AppUser();
+
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
@@ -66,7 +67,7 @@ public class UserService implements UserDetailsService {
     public void deleteUser(int id) {
         //Find brugeren i DB
         AppUser user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bruger med ID " + id + " blev ikke fundet"));
+                .orElseThrow(() -> new RuntimeException("Bruger blev ikke fundet"));
 
         //Forbyd sletning af egen bruger(admin)
         String currentUsername = getCurrentUsername();
@@ -77,24 +78,32 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Admin brugere kan ikke slettes af sikkerhedsmæssige årsager");
         }
         //QE-206: Slet brugeren fra DB (SQL: DELETE FROM app_user WHERE id = ?
+        businessRepository.findByAppUser(user)
+                .ifPresent(businessRepository::delete);
+
         userRepository.delete(user);
     }
 
     //Helper: Hent nuværende brugers username fra security context
     private String getCurrentUsername() {
+
         try {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (principal instanceof UserDetails) {
-                return ((UserDetails) principal).getUsername();
-            } else {
-                return principal.toString();
+            Object principal = SecurityContextHolder
+                    .getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+
+            if (principal instanceof UserDetails userDetails) {
+                return userDetails.getUsername();
             }
+
+            return principal.toString();
+
         } catch (Exception e) {
             return null;
         }
     }
 
-    // Bruges af Spring Security til login
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -116,48 +125,53 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    // Validerer password regler for forskellige roller
     private void validatePassword(CreateUserDTO dto) {
 
         String password = dto.getPassword();
 
-        if (dto.getRole() == Role.DRIVER) {
-            if (!password.matches("\\d{4}")) {
-                throw new RuntimeException("Chauffør skal have 4-cifret pinkode");
-            }
+        if (password.length() < 4) {
+            throw new RuntimeException("Password skal være mindst 4 tegn");
         }
 
-        if (dto.getRole() == Role.ADMIN) {
-            boolean hasUppercase = password.matches(".*[A-Z].*");
-            boolean hasNumber = password.matches(".*\\d.*");
-            boolean hasLowercase = password.matches(".*[a-z].*");
-            boolean hasSpecialCharacter = password.matches(".*[^a-zA-Z0-9].*");
+        boolean hasUppercase = password.matches(".*[A-Z].*");
+        boolean hasNumber = password.matches(".*\\d.*");
+        boolean hasLowercase = password.matches(".*[a-z].*");
+        boolean hasSpecialCharacter = password.matches(".*[^a-zA-Z0-9].*");
 
-            if (!hasUppercase || !hasNumber || !hasLowercase || !hasSpecialCharacter) {
-                throw new RuntimeException("Admin password skal indeholde stort bogstav og tal");
-            }
+        if (!hasUppercase || !hasNumber || !hasLowercase || !hasSpecialCharacter) {
+            throw new RuntimeException("Password skal indeholde stort bogstav, lille bogstav, tal og specialtegn");
         }
     }
 
-    // QE-322: Database query der henter alle brugere(id, username, role)
-    // QE-323: Mapper til UserResponseDTO for JSON response (returnerer brugerdata som DTO til frontend)
     public List<UserResponseDTO> getAllUsers() {
-        //QE-322: findAll() genererer: SELECT * FROM app_user
+
         return userRepository.findAll()
                 .stream()
-                // QE-323: MApper hver AppUser til UserResponseDTO (Skjuler password)
-                .map(this::toUserResponseDto) //Entity -> DTO mapping
+                .map(this::toUserResponseDto)
                 .collect(Collectors.toList());
     }
 
-    // Helper til mapping AppUser -> UserResponseDTO
     private UserResponseDTO toUserResponseDto(AppUser user) {
+
         UserResponseDTO dto = new UserResponseDTO();
+
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setRole(user.getRole() != null ? user.getRole().name() : null);
+
         return dto;
     }
+
+    public void updateUser(int id, UpdateUserDTO dto) {
+
+        AppUser user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bruger blev ikke fundet"));
+
+        user.setUsername(dto.getUsername());
+
+        String encryptedPassword = passwordEncoder.encode(dto.getPassword());
+        user.setPassword(encryptedPassword);
+
+        userRepository.save(user);
+    }
 }
-
-

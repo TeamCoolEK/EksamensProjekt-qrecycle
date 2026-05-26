@@ -1,22 +1,13 @@
 package org.example.eksamensprojektqrecycle.controller;
 
-import org.example.eksamensprojektqrecycle.model.dto.CreateBusinessDTO;
 import org.example.eksamensprojektqrecycle.model.dto.CreateCollectionDTO;
-import org.example.eksamensprojektqrecycle.model.entity.Business;
-import org.example.eksamensprojektqrecycle.repository.BusinessRepository;
-import org.example.eksamensprojektqrecycle.repository.CollectionRepository;
-import org.example.eksamensprojektqrecycle.repository.UserRepository;
 import org.example.eksamensprojektqrecycle.service.BusinessService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.example.eksamensprojektqrecycle.model.dto.UpdateCollectionStatusDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.service.PickupService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 // REST controller til virksomhed endpoints
 @RestController
