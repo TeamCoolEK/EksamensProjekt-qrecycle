@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class BusinessService {
@@ -33,13 +32,11 @@ public class BusinessService {
 
     public Business createBusiness(CreateBusinessDTO dto) {
         validateBusiness(dto);
-        // Genererer 4-cifret kode
-        String generatedPassword = generateFourDigitPassword();
 
         // Opretter bruger
         AppUser user = new AppUser();
         user.setUsername(dto.getUsername());
-        user.setPassword(passwordEncoder.encode(generatedPassword));
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.BUSINESS);
         AppUser savedUser = userRepository.save(user);
 
@@ -64,13 +61,12 @@ public class BusinessService {
         if (dto.getUsername() == null || dto.getUsername().isBlank()) {
             throw new RuntimeException("Username mangler");
         }
-    }
-
-    private String generateFourDigitPassword() {
-        Random random = new Random();
-        int number = 1000 + random.nextInt(9000);
-
-        return String.valueOf(number);
+        if (dto.getPassword() == null || dto.getPassword().isBlank()) {
+            throw new RuntimeException("Password mangler");
+        }
+        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
+            throw new RuntimeException("Brugernavn er allerede i brug");
+        }
     }
 
     public List<BusinessResponseDTO> getAllBusinesses() {
