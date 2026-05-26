@@ -12,4 +12,5 @@ public class CreateBusinessDTO {
     private String phoneNumber;
     private String address;
     private String username;
+    private String password;
 }

@@ -53,13 +53,16 @@ public class AdminController {
         return ResponseEntity.ok(createdUser); // Returnerer bruger + status 200
     }
 
-    //Slet bruger
+    //QE-205: DELETE endpoint til sletning af bruger
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
         try {
+            //QE-206: Kalder service der sletter fra DB
             userService.deleteUser(id);
+            //QE-210: Returnerer succes besked
             return ResponseEntity.ok("Bruger slettet");
         } catch (RuntimeException e) {
+            //Håndterer fejl
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
