@@ -63,17 +63,28 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    //QE-206: Implementer databasekald til sletning
     public void deleteUser(int id) {
-
+        //Find brugeren i DB
         AppUser user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bruger blev ikke fundet"));
 
+        //Forbyd sletning af egen bruger(admin)
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null && user.getUsername().equals(currentUsername)) {
+            throw new RuntimeException("Du kan ikke slette din egen bruger");
+        }
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Admin brugere kan ikke slettes af sikkerhedsmæssige årsager");
+        }
+        //QE-206: Slet brugeren fra DB (SQL: DELETE FROM app_user WHERE id = ?
         businessRepository.findByAppUser(user)
                 .ifPresent(businessRepository::delete);
 
         userRepository.delete(user);
     }
 
+    //Helper: Hent nuværende brugers username fra security context
     private String getCurrentUsername() {
 
         try {
