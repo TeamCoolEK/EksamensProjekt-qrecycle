@@ -18,7 +18,6 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
         LocalDateTime currentTime = LocalDateTime.now();
         String path = request.getRequestURI();
         //response.setHeader("QResycle-error-reason", "Authentication failed"); // custom header
-        response.setHeader("WWW-Authenticate", "Basic realm=\"MyApp\""); // pop up login vindue
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
 
