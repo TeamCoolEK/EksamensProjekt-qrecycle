@@ -139,11 +139,6 @@ public class AdminController {
         return ResponseEntity.ok("Bruger opdateret");
     }
 
-    @GetMapping("/get/endstop")
-    public ResponseEntity<?> getEndStop() {
-        return ResponseEntity.ok(endStopService.findEndStop());
-    }
-
     @PostMapping("/save/endstop")
     public ResponseEntity<?> saveEndStop(
             @RequestBody EndStopDTO dto

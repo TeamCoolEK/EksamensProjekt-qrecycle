@@ -6,10 +6,7 @@ import org.example.eksamensprojektqrecycle.model.dto.ExpenseRequestDTO;
 import org.example.eksamensprojektqrecycle.model.entity.Business;
 import org.example.eksamensprojektqrecycle.model.entity.Collection;
 import org.example.eksamensprojektqrecycle.model.enums.Status;
-import org.example.eksamensprojektqrecycle.service.BusinessService;
-import org.example.eksamensprojektqrecycle.service.DriverLocationService;
-import org.example.eksamensprojektqrecycle.service.ExpenseService;
-import org.example.eksamensprojektqrecycle.service.PickupService;
+import org.example.eksamensprojektqrecycle.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -44,6 +41,9 @@ class DriverControllerTest {
 
     @MockitoBean
     private DriverLocationService driverLocationService;
+
+    @MockitoBean
+    private EndStopService endStopService;
 
     @Test
     void createExpense_shouldReturnOk_whenUserIsLoggedIn() throws Exception {
