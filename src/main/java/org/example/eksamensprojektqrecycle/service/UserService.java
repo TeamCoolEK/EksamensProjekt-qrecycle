@@ -157,6 +157,7 @@ public class UserService {
         user.setUsername(dto.getUsername());
 
         String encryptedPassword = passwordEncoder.encode(dto.getPassword());
+
         user.setPassword(encryptedPassword);
 
         userRepository.save(user);

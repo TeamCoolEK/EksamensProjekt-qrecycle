@@ -1,4 +1,4 @@
-# Maven Build
+# Maven Build (bliver slettet når image er færdig bygget)
 FROM maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /app
 COPY pom.xml .
@@ -8,7 +8,7 @@ COPY src ./src
 # Building snapshot
 RUN mvn clean package -DskipTests -B
 
-# Java Runtime (til at køre snapshot)
+# Java Runtime (til at køre snapshot, den kode som køre når containeren starter)
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 # Tilføjer appuser til image (undgår brugen af root user som kan give sikkerheds ricisi)
